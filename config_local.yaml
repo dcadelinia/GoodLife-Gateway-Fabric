@@ -1,28 +1,46 @@
-# Local Credentials, Authentication, and Private API Tokens
-.env
-*secret*
-config_local.yaml
-keys.txt
-*.pem
-*.key
+# ==============================================================================
+# GoodLife Gateway Fabric - Master Enterprise Architecture Blueprint
+# Target Infrastructure: Project Koridor & Mycelium Edge Intelligence Engine
+# ==============================================================================
 
-# Python Processing Cache & Runtime Artifacts
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.pypy/
-.pytest_cache/
-.poetry.lock
-pip-log.txt
+system_environment:
+  deployment_mode: "edge_production"
+  tenant_isolation: "aws_nitro_enclave_enforced"
+  failover_strategy: "nvidia_dynamo_shadow_recovery"
 
-# Heavy Spatial 3D Scene Graphs & Local Simulation Outputs
-simulation_layer/stages/*.usd
-simulation_layer/stages/*.usda
-simulation_layer/stages/*.usdc
+network_fabric:
+  control_plane: "arista_eos_infiniband"
+  ingestion_hardware: "nvidia_bluefield_4_dpu"
+  telemetry_channels:
+    freight_metrics_port: 8081
+    digital_throughput_port: 8082
+    network_switching_latency_max_ms: 2.0
 
-# Local Asset Databases & System Log Drafts
-*.db
-*.sqlite
-*.log
-local_drafts/
+hardware_acceleration:
+  prefill_engine:
+    hardware_target: "nvidia_vera_rubin_nvl72"
+    max_context_tokens: 131072
+    allocation_layer: "hbm_memory_pooling"
+  decode_engine:
+    hardware_target: "groq_3_lpx_lpu"
+    vector_slice_bytes: 320
+    target_throughput_tps: 3431
+
+multi_agent_orchestration:
+  routing_framework: "perplexity_sac_19_agent_stack"
+  frontier_planner: "openai_gpt_5.5_cloud_api"
+  local_executive: "nvidia_nemotron_3.5_lightning"
+  model_quantization: "nvfp4_native"
+
+physical_ai_robotics:
+  policy_engine: "nvidia_isaac_gr00t_v2.0"
+  simulation_runtime: "isaac_sim_gpu_accelerated"
+  safety_governance:
+    protocol: "nvidia_halos_functional_safety"
+    control_loop_frequency_hz: 1000
+    fault_state_action: "deterministic_zero_velocity_freeze"
+
+storage_paths:
+  quantization_manifest: "cognitive_layer/models/quantization_spec.json"
+  robotics_manifest: "cognitive_layer/models/isaac_gr00t_config.json"
+  cpp_core_binary: "build/goodlife_gateway"
