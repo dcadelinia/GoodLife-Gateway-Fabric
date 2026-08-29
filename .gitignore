@@ -1,0 +1,28 @@
+# Local Credentials, Authentication, and Private API Tokens
+.env
+*secret*
+config_local.yaml
+keys.txt
+*.pem
+*.key
+
+# Python Processing Cache & Runtime Artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pypy/
+.pytest_cache/
+.poetry.lock
+pip-log.txt
+
+# Heavy Spatial 3D Scene Graphs & Local Simulation Outputs
+simulation_layer/stages/*.usd
+simulation_layer/stages/*.usda
+simulation_layer/stages/*.usdc
+
+# Local Asset Databases & System Log Drafts
+*.db
+*.sqlite
+*.log
+local_drafts/
