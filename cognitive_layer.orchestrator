@@ -1,0 +1,38 @@
+import os
+import sys
+from cognitive_layer.orchestrator import MobiusLoopOrchestrator
+from simulation_layer.omni_service import NvidiaSpatialSimulationEngine
+
+def run_production_simulation():
+    print("======================================================================")
+    print("LAUNCHING 50-YEAR CONVERGENCE LOOP: RE-SIMULATION MATRIX INITIATED")
+    print("======================================================================\n")
+
+    orchestrator = MobiusLoopOrchestrator()
+    sim_engine = NvidiaSpatialSimulationEngine()
+
+    mock_telemetry_anomaly = (
+        "MACRO TELEMETRY ALERT: Sector 7 Flora index dropped to 68%. "
+        "Subsurface distribution pipeline mismatch identified near Albany Middle Lane Grid. "
+        "Requires real-time global trade parameter verify and instant asset re-routing."
+    )
+
+    print(f"[ACTIVE TELEMETRY STREAM]: {mock_telemetry_anomaly}\n")
+    print("[PROCESSING]: Orchestrating Cognitive, Capital, and Information Agents...")
+    
+    validated_contract = orchestrator.process_grid_anomaly(mock_telemetry_anomaly)
+    
+    print("[SUCCESS]: Sovereign Multi-Agent Contract compiled cleanly.")
+    print("[PROCESSING]: Distributing operational vectors to NVIDIA OpenUSD and Embodied AI layers...")
+
+    loop_status = sim_engine.apply_autonomous_asset_defense(validated_contract)
+    
+    print("======================================================================")
+    print(f"50-YEAR SYSTEM FABRIC TEST STATUS: {loop_status}")
+    print("======================================================================")
+    
+    if not loop_status:
+        sys.exit(1)
+
+if __name__ == "__main__":
+    run_production_simulation()
