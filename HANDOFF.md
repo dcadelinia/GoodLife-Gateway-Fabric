@@ -1,15 +1,13 @@
-# 🛠️ Odynex Axis Engineering Handoff Manual
-## GoodLifeGateway Core Multi-Agent Architecture Stack
+## 🤖 Physical AI Execution Matrix (NVIDIA Isaac GR00T Integration)
 
-This onboarding brief outlines execution parameters for deploying and maintaining the Regional Node SOWEGA digital twin framework loop.
+To support automated logistics routing and physical freight handling for Odynex Axis Logistics LLC, the framework isolates physical actuation from standard cognitive layers via a dedicated robotics policy pipeline.
 
-### 🧱 1. Operational Stack Overview
-The system architecture runs on an integrated, concurrent processing ecosystem:
-*   **Intelligence:** OpenAI API Core Engine (`gpt-4o-2024-08-06`) running strict structured JSON payload parameters.
-*   **Web Framework:** FastAPI network handling handling asynchronous JSON CORS streams.
-*   **Data Grounding:** Real-time search orchestration using Perplexity's API endpoints.
-*   **Spatial Twin Layer:** NVIDIA OpenUSD (Universal Scene Description) scene graph schema integration.
-*   **Embodied AI:** NVIDIA Isaac Lab robotics control policies mapping to GR00T framework structures.
+### Architectural Controls
+* **Core Robotics Engine:** NVIDIA Isaac GR00T v2.0 cross-embodiment foundation policy.
+* **Control Loop Integrity:** Running at 1000Hz via GPU-accelerated Isaac Sim platforms.
+* **Functional Safety:** Managed by the NVIDIA Halos system, enforcing deterministic zero-velocity state freezes during unmitigated hardware pipeline halts.
+* **Ingestion Mapping:** Fuses real-time Cosmos-3 Edge VLMs and 3D BEV pooling streams directly over high-throughput BlueField-4 data paths.
+
 
 ### 🏃 2. Initial Setup Requirements
 Engineers must initialize their local runtime variables exactly as follows:
