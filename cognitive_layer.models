@@ -1,0 +1,49 @@
+import os
+import yaml
+from openai import OpenAI
+from cognitive_layer.models import AnomalyCorrectionPayload
+from cognitive_layer.compliance_research import PerplexityResearchAgent
+
+with open("config.yaml", "r") as f:
+    config = yaml.safe_load(f)
+
+class MobiusLoopOrchestrator:
+    def __init__(self):
+        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "mock-key-development"))
+        self.model = config["openai_parameters"]["model"]
+        self.research_agent = PerplexityResearchAgent()
+
+    def process_grid_anomaly(self, anomaly_data: str) -> AnomalyCorrectionPayload:
+        live_intel = self.research_agent.verify_live_zoning_compliance(anomaly_data)
+        
+        system_instruction = (
+            "You are the GoodLifeGateway System Fabric Cognitive Core. "
+            "Analyze regional logistics anomalies, calculate risk insulation, "
+            "and embed the world-building lore of Veridyan and The Last Living Leaf into your status outputs. "
+            f"Ground compliance parameters in these recent citations: {live_intel['citations']}"
+        )
+
+        if os.getenv("OPENAI_API_KEY") is None or os.getenv("OPENAI_API_KEY") == "mock-key-development":
+            from cognitive_layer.models import BlackRockRiskMetrics, AmazonLogisticsManifest, Gr00tPhysicalRobotPolicy, PerplexityVerification
+            return AnomalyCorrectionPayload(
+                is_compliant=True,
+                target_action="REDIRECT_FLEET",
+                optimized_routing_lane=["NODE_ALBANY_MIDDLE_01", "NODE_AGRI_VALLEY_04"],
+                narrative_alert_string="[LORE VERIDYAN CANOPY]: Luna guides the autonomous drone matrix to protect the remaining biomass nodes.",
+                capital_metrics=BlackRockRiskMetrics(portfolio_insulation_score=0.94, instant_treasury_yield_delta=0.035, asset_liquidity_status="DEPLOYED"),
+                external_intel=PerplexityVerification(regulatory_citations=live_intel['citations'], policy_shift_detected=live_intel['policy_shift']),
+                supply_chain=AmazonLogisticsManifest(fulfillment_routing_node="AWS_MOBI_NODE_SOWEGA", fleet_throughput_efficiency=0.91),
+                gr00t_policy=Gr00tPhysicalRobotPolicy(workflow_override="GR00T_MOBILITY", trajectory_node_path=["COORD_X_44", "COORD_Y_12"], target_embodiment_id="JETSON_THOR_FLEET_01")
+            )
+
+        completion = self.client.beta.chat.completions.parse(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": f"RAW INFRASTRUCTURE TELEMETRY SURGE: {anomaly_data}"}
+            ],
+            response_format=AnomalyCorrectionPayload,
+            temperature=config["openai_parameters"]["temperature"]
+        )
+        
+        return completion.choices.message.parsed
