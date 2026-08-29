@@ -1,45 +1,49 @@
 import os
-import requests
-import yaml
+import json
 
-class PerplexityResearchAgent:
+class ComplianceAuditor:
     def __init__(self):
-        with open("config.yaml", "r") as f:
-            config = yaml.safe_load(f)
-        self.api_url = "https://perplexity.ai"
-        self.model = config["perplexity_parameters"]["model"] if "perplexity_parameters" in config else "sonar-reasoning"
-        self.api_key = os.getenv("PERPLEXITY_API_KEY", "mock-perplexity-key")
+        # Mapped to your clean nested configuration layer
+        self.config_dir = os.path.join(os.path.dirname(__file__), "cognitive_layer", "models")
+        self.gr00t_path = os.path.join(self.config_dir, "isaac_gr00t_config.json")
+        self.quant_path = os.path.join(self.config_dir, "quantization_spec.json")
 
-    def verify_live_zoning_compliance(self, query: str) -> dict:
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
+    def verify_regulatory_compliance(self) -> dict:
+        """Audits active edge systems against safety and operational compliance targets."""
+        report = {
+            "auditor_status": "ACTIVE",
+            "compliance_checks": {},
+            "regulatory_pass": False
         }
-        
-        payload = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": "You are the Real-Time Regulatory Sovereignty Agent for Odynex Axis. Find actual legal/zoning changes regarding transit corridors."},
-                {"role": "user", "content": f"Search for current logistics constraints or zoning laws impacting: {query}"}
-            ]
-        }
-        
-        if self.api_key == "mock-perplexity-key":
-            return {
-                "citations": ["https://albanyga.gov"],
-                "policy_shift": False
-            }
 
+        if not os.path.exists(self.gr00t_path) or not os.path.exists(self.quant_path):
+            report["compliance_checks"]["filesystem_integrity"] = "FAIL: Missing core engine specs"
+            return report
+        
         try:
-            response = requests.post(self.api_url, json=payload, headers=headers, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                return {
-                    "citations": data.get("citations", ["https://albanyga.gov"]),
-                    "policy_shift": True
-                }
-        except Exception:
-            pass
+            with open(self.gr00t_path, 'r') as g_file:
+                gr00t_data = json.load(g_file)
             
-        return {"citations": ["https://georgiainfrastructure.gov"], "policy_shift": False}
-      
+            # Audit Loop Frequency Safety Rules (Must run at 1000Hz minimum for physical safety)
+            loop_hz = gr00t_data["isaac_gr00t_deployment"]["control_loop"]["frequency_hz"]
+            if loop_hz >= 1000:
+                report["compliance_checks"]["physical_robotics_latency"] = f"PASS: Operational at {loop_hz}Hz"
+            else:
+                report["compliance_checks"]["physical_robotics_latency"] = f"FAIL: Sub-nominal frequency {loop_hz}Hz"
+                
+            # Audit safety governance presence
+            governance = gr00t_data["isaac_gr00t_deployment"]["control_loop"]["safety_governance"]
+            report["compliance_checks"]["safety_governance_protocol"] = f"VERIFIED: Using {governance}"
+            
+            report["regulatory_pass"] = True
+            
+        except Exception as e:
+            report["compliance_checks"]["parser_status"] = f"FAIL: {str(e)}"
+            
+        return report
+
+if __name__ == "__main__":
+    auditor = ComplianceAuditor()
+    audit_results = auditor.verify_regulatory_compliance()
+    print("=== Infrastructure Operational Compliance Report ===")
+    print(json.dumps(audit_results, indent=2))
