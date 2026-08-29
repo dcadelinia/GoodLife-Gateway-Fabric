@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mycelium-edge-orchestrator
+  labels:
+    app: infrastructure-framework
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: edge-node
+  template:
+    metadata:
+      labels:
+        app: edge-node
+    spec:
+      containers:
+        - name: core-cpp-engine
+          image: dcadelinia/mycelium-engine:latest
+          resources:
+            limits:
+              ://nvidia.com: "8"
+              ://groq.com: "32"
+            requests:
+              ://nvidia.com: "8"
+          securityContext:
+            privileged: false
+            readOnlyRootFilesystem: true
+        - name: perplexity-sac-worker
+          image: perplexity/portable-computer-index:latest
+          env:
+            - name: MODEL_ORCHESTRATION_TIER
+              value: "19-SUBAGENT-LOCAL"
