@@ -1,8 +1,0 @@
-/goal Clone https://github.com/NVIDIA/TensorRT-Model-Connect.git into 
-a new TensorRT-Model-Connect directory in the current workspace. Detect 
-the current GPU compute capability, modify the repository development Docker 
-image, build and start the container, install TensorRT-Model-Connect, compile 
-the CLI, TensorRT backend, and all native model DSOs only for that SM, then 
-build and run an end-to-end Qwen/Qwen3-0.6B smoke test. Do not commit or push 
-changes. Report the result of the test, show exact command, input and output of 
-the inference run.
