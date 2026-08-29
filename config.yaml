@@ -1,0 +1,30 @@
+openai_parameters:
+  model: "gpt-4o-2024-08-06"
+  temperature: 0.15
+  max_tokens: 2000
+
+perplexity_parameters:
+  model: "sonar-reasoning"
+  api_base_url: "https://perplexity.ai"
+  search_depth: "advanced"
+
+blackrock_aladdin_risk_matrix:
+  target_liquidity_coefficient: 0.85
+  portfolio_erosion_lockdown_threshold: 0.15
+  yield_distribution_strategy: "instant_treasury_optimization"
+
+amazon_aws_infrastructure:
+  storage_tier: "s3-glacier-deep-archive"
+  iot_fleet_management_zone: "us-east-1"
+  fulfillment_sync_enabled: true
+
+nvidia_gr00t_parameters:
+  foundation_model_version: "gr00t-n1.7"
+  onboard_compute_target: "jetson-thor"
+  simulation_arena: "isaac-lab-sowega"
+
+goodlifegateway_sowega_node:
+  usd_stage_path: "./simulation_layer/stages/project_koridor.usd"
+  default_latency_target: 0.35
+  baseline_uptime_limit: 0.987
+  
