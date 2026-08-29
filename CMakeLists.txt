@@ -1,55 +1,28 @@
-#include <iostream>
-#include <string>
-#include <trtmc/pipeline.h> // TensorRT Model Connect Task API
+cmake_minimum_required(VERSION 3.18)
+project(GoodLifeGatewayFabric LANGUAGES CXX)
 
-// Mock telemetry ingestion structure from your Mycelium engine
-struct LogisticsTelemetry {
-    std::string freight_id;
-    double throughput_metric;
-    std::string system_status;
-};
+# ---- COMPILATION SETTINGS ----
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-class MyceliumOrchestrationLoop {
-private:
-    std::shared_ptr<trtmc::Pipeline> llm_backend;
+# ---- CONFIGURATION DIRECTORIES ----
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cognitive_layer)
 
-public:
-    MyceliumOrchestrationLoop(const std::string& bundle_path) {
-        // Load the hardware-accelerated TensorRT bundle natively
-        llm_backend = trtmc::load(bundle_path);
-    }
+# ---- EXECUTABLE BUILDING TARGETS ----
+add_executable(goodlife_gateway 
+    cognitive_layer/orchestrator/gateway_core.cpp
+)
 
-    void process_telemetry_event(const LogisticsTelemetry& data) {
-        // Formulate a structured prompt for the edge LLM
-        std::string prompt = "Analyze telemetry. Freight ID: " + data.freight_id + 
-                             ", Throughput: " + std::to_string(data.throughput_metric) + 
-                             ", Status: " + data.system_status + 
-                             ". Is autonomous redirect required? Answer YES or NO.";
+# ---- PRODUCTION SYSTEM COMPILATION FLAGS ----
+target_compile_definitions(goodlife_gateway PRIVATE
+    NVIDIA_BLACKWELL_NATIVE=1
+    DYNAMO_SHADOW_RECOVERY=1
+    GROQ_LPX_ACCELERATED=1
+)
 
-        // Execute inference using TensorRT Semantic API (Zero Python overhead)
-        auto result = llm_backend->generate(prompt, {.max_new_tokens = 5});
-
-        std::cout << "[MYCELIUM EDGE] Analysis Result: " << result.text << std::endl;
-        
-        // Handle autonomous safe-state redirect if necessary
-        if (result.text.find("YES") != std::string::npos) {
-            trigger_safe_state_redirect();
-        }
-    }
-
-private:
-    void trigger_safe_state_redirect() {
-        std::cout << "[WARN] Isolating local physical assets. Triggering safe-state." << std::endl;
-    }
-};
-
-int main() {
-    // Initialize the loop with your optimized Qwen bundle
-    MyceliumOrchestrationLoop edge_node("models/qwen3_edge.bundle");
-
-    // Simulating an incoming transport telemetry stream anomaly
-    LogisticsTelemetry incoming_event{"FR8-902X", 94.2, "CRITICAL_OVERLOAD"};
-    edge_node.process_telemetry_event(incoming_event);
-
-    return 0;
-}
+# ---- PRINT VERIFICATION PIPELINE DURING GENERATION ----
+message(STATUS "--------------------------------------------------------")
+message(STATUS "Configuring Project Koridor & Mycelium Core Infrastructure Stack")
+message(STATUS "Target Architecture: Universal Hardware-Accelerated Fabric Map")
+message(STATUS "--------------------------------------------------------")
