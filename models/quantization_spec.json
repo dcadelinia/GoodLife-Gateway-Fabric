@@ -1,0 +1,20 @@
+{
+  "model_deployment_manifest": {
+    "execution_target": "NVIDIA-Nemotron-3.5-Lightning",
+    "active_parameters": "3B-MoE-Router",
+    "quantization": {
+      "format": "NVFP4",
+      "kernel_acceleration": "Blackwell-Hopper-Native",
+      "precision_loss": "0.00%"
+    },
+    "hardware_mapping": {
+      "prefill_cluster": "Vera-Rubin-NVL72",
+      "decode_accelerator": "Groq-3-LPX-LPU",
+      "throughput_frontier": "3431-TPS-at-100K-Context"
+    },
+    "orchestration": {
+      "local_routing_harness": "Perplexity-SaC-19Agent",
+      "failover_engine": "NVIDIA-Dynamo-Shadow-Recovery"
+    }
+  }
+}
