@@ -3,9 +3,6 @@
 app = "goodlife-gateway-fabric"
 primary_region = "iad"
 
-[env]
-  PORT = "8080"
-
 [http_service]
   internal_port = 8080
   force_https = true
@@ -13,24 +10,3 @@ primary_region = "iad"
   auto_start_machines = true
   min_machines_running = 0
   processes = ["app"]
-
-[[vm]]
-  cpu_kind = "shared"
-  cpus = 1
-  memory = "1gb"
-      # FIX: Fly.io gives machines exactly 5 seconds by default to shut down after SIGTERM. 
-      # We explicitly map this out so the application drains state instantly.
-      on_sigterm: "immediate_graceful_drain_5s"    
-      on_sigkill: "force_unlock"      
-      allow_concurrent_loops: false   
-
-error_handling_policies:
-  fallback_to_safe_state:
-    action: "reset_to_last_known_good"
-    clear_local_cache: true
-    notify_admin: true
-  
-  rollback_and_alert:
-    action: "abort_transaction"
-    release_distributed_locks: true
-    severity: "CRITICAL"
