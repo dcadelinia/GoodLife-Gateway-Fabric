@@ -1,76 +1,21 @@
 # defense/safe_state_loops.yaml
-# Blueprint configuration for system metric validation
+# Blueprint configuration for system metric validations and gateway routing
 
 version: "1.0"
+layout:
+  blueprint: "system-metric-validation"
+  environment: "fly.io"
+  gateway_url: "https://fly.dev"
+
 metrics:
-  - name: hardware_acceleration_loop
+  - loop_id: "hardware_acceleration_simulation"
+    runtime: "Python 3.11"
     enabled: true
-    interval: 1s
-    thresholds:
-      critical: 95
-      warning: 80
+    check_deterministic_reality: true
+    synchronize_prior_art_timestamps: true
 
-simulation:
-  runtime: "Python 3.11"
-  deterministic_reality_check: true
-  defensive_timestamps: true
-    platform_handlers:
-      on_sigterm: "immediate_graceful_drain_5s"    
-      on_sigkill: "force_unlock"      
-      allow_concurrent_loops: false   
-
-error_handling_policies:
-  fallback_to_safe_state:
-    action: "reset_to_last_known_good"
-    clear_local_cache: true
-    notify_admin: true
-  
-  rollback_and_alert:
-    action: "abort_transaction"
-    release_distributed_locks: true
-    severity: "CRITICAL"
-      on_sigterm: "immediate_graceful_drain_5s"    
-      on_sigkill: "force_unlock"      
-      allow_concurrent_loops: false   
-
-error_handling_policies:
-  fallback_to_safe_state:
-    action: "reset_to_last_known_good"
-    clear_local_cache: true
-    notify_admin: true
-  
-  rollback_and_alert:
-    action: "abort_transaction"
-    release_distributed_locks: true
-    severity: "CRITICAL"
-      on_sigterm: "immediate_graceful_drain_5s"    
-      on_sigkill: "force_unlock"      
-      allow_concurrent_loops: false   
-
-error_handling_policies:
-  fallback_to_safe_state:
-    action: "reset_to_last_known_good"
-    clear_local_cache: true
-    notify_admin: true
-  
-  rollback_and_alert:
-    action: "abort_transaction"
-    release_distributed_locks: true
-    severity: "CRITICAL"
-    # Deep integration with Fly.io Machine events
-    platform_handlers:
-      on_sigterm: "graceful_drain"    # Complete current cycle and save state before Fly stops the machine
-      on_sigkill: "force_unlock"      # Emergency release of any cluster state locks
-      allow_concurrent_loops: false   # Strict lock to prevent two machines executing the same logic
-
-# Fallback definitions to prevent catastrophic data corruption
-error_handling_policies:
-  fallback_to_safe_state:
-    action: "reset_to_last_known_good"
-    clear_local_cache: true
-    notify_admin: true
-  
-  rollback_and_alert:
-    action: "abort_transaction"
-    release_distributed_locks: true
-    severity: "CRITICAL"
+  - loop_id: "validate_framework_core"
+    fail_on_missing_config: true
+    retry_policy:
+      max_attempts: 3
+      backoff: "exponential"
