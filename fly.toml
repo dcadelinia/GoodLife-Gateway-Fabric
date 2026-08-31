@@ -3,8 +3,9 @@ app = "goodlife-gateway-fabric"
 primary_region = "iad"
 
 [build]
-  # Forces Fly.io to ignore remote building pools and wait for local pushes
+  # Overrides and blocks account builders like fly-builder-tranquil-valley-1715
   builder = "none"
+  image = ""
 
 [http_service]
   internal_port = 8080
