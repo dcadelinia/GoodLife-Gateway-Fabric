@@ -148,6 +148,117 @@ async def handle_framer_submission(form_data: FramerContactForm):
 
 def read_loop_blueprint():
     try:
+        yaml_path = "defense/safe_state_loops.yaml"
+        if os.path.exists(yaml_path):
+            with open(yaml_path, "r") as stream:
+                return yaml.safe_load(stream)
+    except Exception as parse_error:
+        print(f"BASELINE ERROR: Failing to parse blueprint: {parse_error}")
+    return None
+
+def send_email_notification(client_name: str, client_email: str, client_message: str):
+    # ZenBusiness Outbound SMTP Server Settings
+    SMTP_SERVER = "://hostedemail.com"  
+    SMTP_PORT = 465
+    SENDER_EMAIL = "david@odynexaxis.biz" 
+    SENDER_PASSWORD = "Galaways8896"  
+    RECEIVER_EMAIL = "david@odynexaxis.biz"
+
+    msg = MIMEMultipart()
+    msg['From'] = SENDER_EMAIL
+    msg['To'] = RECEIVER_EMAIL
+    msg['Subject'] = f"New Inquiry: {client_name} via Odynex Axis Gateway"
+
+    body = f"""
+    You have received a new contact submission from your website form:
+    
+    Name: {client_name}
+    Email: {client_email}
+    
+    Message:
+    ---------------------------------------------
+    {client_message}
+    ---------------------------------------------
+    """
+    msg.attach(MIMEText(body, 'plain'))
+
+    try:
+        server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT)
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, msg.as_string())
+        server.quit()
+        print("Notification email successfully dispatched.")
+    except Exception as e:
+        print(f"Failed to dispatch email alert: {str(e)}")
+
+async def continuous_state_orchestrator():
+    global LOOP_ACTIVE
+    blueprint = read_loop_blueprint()
+    
+    print("Omni Service State loop tracking initialized successfully.")
+    
+    while LOOP_ACTIVE:
+        try:
+            await asyncio.sleep(0.5) 
+            
+            with open("/tmp/fabric_heartbeat.lock", "w") as lock_file:
+                lock_file.write("ACTIVE")
+            
+            cooldown = 5
+            if blueprint and "metrics" in blueprint:
+                cooldown = 1
+            await asyncio.sleep(cooldown)
+            
+        except asyncio.CancelledError:
+            print("State orchestration loop safely intercepted and closed.")
+            break
+        except Exception as runtime_fault:
+            print(f"Exception in state loop node: {runtime_fault}")
+            await asyncio.sleep(5)
+
+def intercept_sigterm(signum, frame):
+    global LOOP_ACTIVE
+    print("Fly.io SIGTERM detected. Executing graceful state conservation drain...")
+    LOOP_ACTIVE = False
+
+signal.signal(signal.SIGTERM, intercept_sigterm)
+
+@app.on_event("startup")
+async def register_background_matrices():
+    asyncio.create_task(continuous_state_orchestrator())
+
+@app.get("/")
+def baseline_handshake():
+    return {
+        "status": "ONLINE",
+        "fabric_verification": "SUCCESS",
+        "subsystems": {
+            "omni_service": "OPERATIONAL"
+        }
+    }
+
+@app.get("/healthz")
+def platform_health_gate(response: Response):
+    if os.path.exists("/tmp/fabric_heartbeat.lock") and LOOP_ACTIVE:
+        return {"status": "HEALTHY", "matrix_loop": "SYNCHRONIZED"}
+    
+    response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    return {"status": "UNHEALTHY", "matrix_loop": "DE-SYNCHRONIZED"}
+
+@app.post("/")
+async def handle_framer_submission(form_data: FramerContactForm):
+    try:
+        print(f"New submission from {form_data.name} ({form_data.email})")
+        send_email_notification(form_data.name, form_data.email, form_data.message)
+        return {
+            "status": "SUCCESS", 
+            "message": "Inquiry successfully securely routed into framework core and emailed."
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+def read_loop_blueprint():
+    try:
         # Check inside the defense folder where your yaml config file is kept
         yaml_path = "defense/safe_state_loops.yaml"
         if os.path.exists(yaml_path):
