@@ -3,26 +3,22 @@ blueprint_metadata:
   name: "goodlife-gateway-fabric-state-loops"
   description: "Safe state evaluation and execution layout for trade automation loops on Fly.io"
 
-# Global loop safety constraints
 safety_limits:
-  max_loop_duration_seconds: 300      # Kill loop if it hangs longer than 5 minutes
-  cooldown_interval_seconds: 5        # Required breathing room between loop iterations
-  max_retries_per_state: 3            # Avoid infinite crash loops on a corrupt state
-  backoff_multiplier: 2.0             # Exponential backoff for recovery
+  max_loop_duration_seconds: 300      
+  cooldown_interval_seconds: 5        
+  max_retries_per_state: 3            
+  backoff_multiplier: 2.0             
 
-# State transition lifecycle & boundaries
 execution_loops:
   - id: "primary_trade_evaluator"
     description: "Evaluates external gateway states and executes scheduled actions"
-    trigger: "continuous"             # Runs in a safe iterative loop
+    trigger: "continuous"             
     
-    # State validation rules to ensure safe execution
     pre_flight_checks:
-      - check_network_connectivity: true
-      - verify_external_gateway_sync: true
-      - check_memory_threshold: "85%" # Exit loop iteration to garbage collect if too high
+      check_network_connectivity: true
+      verify_external_gateway_sync: true
+      check_memory_threshold: "85%" 
 
-    # Sequence of standard operations per loop
     loop_sequence:
       - step: "fetch_latest_state"
         timeout_seconds: 15
@@ -33,7 +29,25 @@ execution_loops:
       - step: "commit_state_payload"
         timeout_seconds: 10
         on_failure: "rollback_and_alert"
+      - step: "emit_http_heartbeat"
+        timeout_seconds: 2
+        on_failure: "log_warning"
 
+    platform_handlers:
+      on_sigterm: "immediate_graceful_drain_5s"    
+      on_sigkill: "force_unlock"      
+      allow_concurrent_loops: false   
+
+error_handling_policies:
+  fallback_to_safe_state:
+    action: "reset_to_last_known_good"
+    clear_local_cache: true
+    notify_admin: true
+  
+  rollback_and_alert:
+    action: "abort_transaction"
+    release_distributed_locks: true
+    severity: "CRITICAL"
     # Deep integration with Fly.io Machine events
     platform_handlers:
       on_sigterm: "graceful_drain"    # Complete current cycle and save state before Fly stops the machine
