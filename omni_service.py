@@ -1,3 +1,5 @@
+from fastapi import FastAPI
+app = FastAPI()
 import os
 import json
 import yaml
