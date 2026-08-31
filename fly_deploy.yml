@@ -20,8 +20,8 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Build and Deploy to Fly.io
-        # Added the --local-only flag to bypass Fly.io's broken remote builders completely
+        # FIXED: Removed the broken --image tag so Fly.io compiles your real files cleanly
         run: |
-          flyctl deploy --local-only --build-only --push -a goodlife-gateway-fabric --image-label deployment-${{ github.sha }} --config fly.toml
+          flyctl deploy --local-only -a goodlife-gateway-fabric --config fly.toml
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
