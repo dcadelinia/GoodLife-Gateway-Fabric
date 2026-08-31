@@ -1,4 +1,4 @@
-name: Fly.io Registry Synchronization Pipeline
+name: Fly.io Registry Image Injector
 
 on:
   push:
@@ -6,16 +6,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  inject-registry-image:
+  inject-image:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository Source
+      - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx Runner
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Install Flyctl Engine CLI
+      - name: Install Flyctl CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Authenticate with Fly.io Registry
@@ -23,9 +23,8 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-      - name: Compile and Force-Inject Active Panel Tag
-        # This interceptor explicitly compiles your workspace files and maps them directly to the exact string the panel is requesting
+      - name: Pre-build and Push Exact Tag
+        # This builds your Dockerfile locally on GitHub and pushes it to the exact tag your UI needs
         run: |
-          docker build -t registry.fly.io/goodlife-gateway-fabric:deployment-e2413f66ed40c69c48e37638df9f4807 .
-          docker push registry.fly.io/goodlife-gateway-fabric:deployment-e2413f66ed40c69c48e37638df9f4807
-          
+          docker build -t registry.fly.io/goodlife-gateway-fabric:deployment-53a5bb189759ae94239b38022bc79713 .
+          docker push registry.fly.io/goodlife-gateway-fabric:deployment-53a5bb189759ae94239b38022bc79713
