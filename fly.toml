@@ -1,6 +1,6 @@
-# fly.toml app configuration file for odynexaxis-trade-app-jtgqgq
+# fly.toml app configuration file for GoodLife-Gateway-Fabric
 
-app = "odynexaxis-trade-app-jtgqgq"
+app = "goodlife-gateway-fabric"
 primary_region = "iad"
 
 [env]
@@ -18,22 +18,6 @@ primary_region = "iad"
   cpu_kind = "shared"
   cpus = 1
   memory = "1gb"
-    platform_handlers:
-      on_sigterm: "immediate_graceful_drain_5s"    
-      on_sigkill: "force_unlock"      
-      allow_concurrent_loops: false   
-
-error_handling_policies:
-  fallback_to_safe_state:
-    action: "reset_to_last_known_good"
-    clear_local_cache: true
-    notify_admin: true
-  
-  rollback_and_alert:
-    action: "abort_transaction"
-    release_distributed_locks: true
-    severity: "CRITICAL"
-    platform_handlers:
       # FIX: Fly.io gives machines exactly 5 seconds by default to shut down after SIGTERM. 
       # We explicitly map this out so the application drains state instantly.
       on_sigterm: "immediate_graceful_drain_5s"    
