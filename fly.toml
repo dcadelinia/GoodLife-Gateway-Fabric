@@ -1,5 +1,3 @@
-# fly.toml app configuration file for goodlife-gateway-fabric
-
 app = "goodlife-gateway-fabric"
 primary_region = "syd"
 
