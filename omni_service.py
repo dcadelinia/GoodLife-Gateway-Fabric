@@ -81,3 +81,35 @@ def platform_health_gate(response: Response):
     
     response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
     return {"status": "UNHEALTHY", "matrix_loop": "DE-SYNCHRONIZED"}
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, EmailStr
+from fastapi.middleware.cors import CORSMiddleware
+
+# Note: If 'app = FastAPI()' or similar is already at the top of omni.py,
+# do not duplicate it. Just make sure the code below references your app instance name.
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["POST", "OPTIONS"],
+    allow_headers=["*"],
+)
+
+class FramerContactForm(BaseModel):
+    name: str
+    email: EmailStr
+    message: str
+
+@app.post("/")
+async def handle_framer_submission(form_data: FramerContactForm):
+    try:
+        print(f"New submission from {form_data.name} ({form_data.email})")
+        print(f"Message: {form_data.message}")
+        return {
+            "status": "SUCCESS", 
+            "message": "Inquiry successfully securely routed into framework core."
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+        
