@@ -10,9 +10,10 @@ primary_region = "atl"
   GLOBAL_ROUTING_ENABLED = "true"
   GATEWAY_LOG_LEVEL = "info"
   PORT = "8080"
-  
-  PORT = "8080"
   PYTHONUNBUFFERED = "1"
+
+[processes]
+  app = "" # Note: Fly.io defaults to your Dockerfile ENTRYPOINT/CMD if left blank
 
 [http_service]
   internal_port = 8080
@@ -33,8 +34,3 @@ primary_region = "atl"
     method = "GET"
     timeout = "5s"
     path = "/"
-
-[[vm]]
-  memory = "1gb"
-  cpu_kind = "shared"
-  cpus = 1
