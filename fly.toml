@@ -1,36 +1,20 @@
-app = "goodlife-gateway-fabric"
-primary_region = "atl"
+# fly.toml app configuration file for odynexaxis-trade-app-jtgqgq
 
-[build]
-  dockerfile = "Dockerfile"
+app = "odynexaxis-trade-app-jtgqgq"
+primary_region = "iad"
 
 [env]
-  NODE_ENV = "production"
-  APP_ENV = "production"
-  GLOBAL_ROUTING_ENABLED = "true"
-  GATEWAY_LOG_LEVEL = "info"
   PORT = "8080"
-  PYTHONUNBUFFERED = "1"
-
-[processes]
-  app = "" # Note: Fly.io defaults to your Dockerfile ENTRYPOINT/CMD if left blank
 
 [http_service]
   internal_port = 8080
   force_https = true
+  auto_stop_machines = true
   auto_start_machines = true
-  auto_stop_machines = "stop"
   min_machines_running = 0
   processes = ["app"]
 
-  [http_service.concurrency]
-    type = "requests"
-    soft_limit = 25
-    hard_limit = 50
-
-  [[http_service.checks]]
-    grace_period = "20s"
-    interval = "15s"
-    method = "GET"
-    timeout = "5s"
-    path = "/"
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory = "1gb"
