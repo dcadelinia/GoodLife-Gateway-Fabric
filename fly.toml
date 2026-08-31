@@ -1,0 +1,15 @@
+# fly.toml app configuration file for GoodLife Gateway Fabric
+app = "goodlife-gateway-fabric"
+primary_region = "iad"
+
+[build]
+  # Forces Fly.io to ignore remote building pools and wait for local pushes
+  builder = "none"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
