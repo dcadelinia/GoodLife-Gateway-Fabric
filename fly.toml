@@ -1,5 +1,11 @@
+# fly.toml app configuration file generated for goodlife-gateway-fabric-vmbi4w on 2026-08-31T10:22:03Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
 app = "goodlife-gateway-fabric-vmbi4w"
-primary_region = "iad"
+primary_region = 'dfw'
+kill_signal = 'SIGINT'
 
 [http_service]
   internal_port = 8080
@@ -7,4 +13,4 @@ primary_region = "iad"
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 0
-  processes = ["app"]
+  processes = ['app']
