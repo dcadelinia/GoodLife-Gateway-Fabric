@@ -1,6 +1,10 @@
-# fly.toml app configuration file generated for goodlife-gateway-fabric
+# fly.toml app configuration file for goodlife-gateway-fabric
 app = 'goodlife-gateway-fabric'
 primary_region = 'syd'
+
+[build]
+  # Explicitly forces Fly.io to compile using your local Dockerfile blueprint
+  dockerfile = "Dockerfile"
 
 [http_service]
   internal_port = 8080
