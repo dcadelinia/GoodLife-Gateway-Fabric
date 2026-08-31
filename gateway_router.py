@@ -1,39 +1,78 @@
-from fastapi import FastAPI
+import os
+import yaml
+import asyncio
+import signal
+from fastapi import FastAPI, Response, status
 
-# The variable name MUST match the string after the colon in your Dockerfile CMD
-app = FastAPI(title="GoodLife Gateway Fabric")
+app = FastAPI(title="GoodLife Gateway Fabric - Sovereign Core")
+
+# Thread-safe lifecycle variables
+LOOP_ACTIVE = True
+
+def read_loop_blueprint():
+    try:
+        with open("safe_state_loops.yaml", "r") as stream:
+            return yaml.safe_load(stream)
+    except Exception as parse_error:
+        print(f"CRITICAL BASELINE ERROR: Failing to parse layout: {parse_error}")
+        return None
+
+async def continuous_state_orchestrator():
+    global LOOP_ACTIVE
+    blueprint = read_loop_blueprint()
+    if not blueprint:
+        return
+
+    print("Sovereign Intelligence State loop initialized successfully.")
+    
+    while LOOP_ACTIVE:
+        try:
+            # 1. Simulate workflow checkpoints matching layout matrix
+            await asyncio.sleep(0.5) 
+            
+            # 2. Write dynamic loop heartbeat status out to tmp disk space
+            with open("/tmp/fabric_heartbeat.lock", "w") as lock_file:
+                lock_file.write("DETERMINISTIC_ACTIVE")
+            
+            # Extract configuration cooldown interval directly from parsed metrics
+            cooldown = blueprint["safety_limits"]["cooldown_interval_seconds"]
+            await asyncio.sleep(cooldown)
+            
+        except asyncio.CancelledError:
+            print("State orchestration loop safely intercepted and closed.")
+            break
+        except Exception as runtime_fault:
+            print(f"Intercepted exception in active state node: {runtime_fault}")
+            await asyncio.sleep(5)
+
+def intercept_sigterm(signum, frame):
+    global LOOP_ACTIVE
+    print("Fly.io SIGTERM detected. Executing 5-second graceful state conservation drain...")
+    LOOP_ACTIVE = False
+
+# Capture container infrastructure lifecycle termination triggers
+signal.signal(signal.SIGTERM, intercept_sigterm)
+
+@app.on_event("startup")
+async def register_background_matrices():
+    asyncio.create_task(continuous_state_orchestrator())
 
 @app.get("/")
-def read_root():
-    return {"status": "online", "fabric": "GoodLife Gateway"}
-    print("UPGRADING GOODLIFE GATEWAY FABRIC SECURE NETWORK LAYER ENGINE")
-    print("=================================================================")
-    
-    # Simulate active streaming inputs from the NeuGebauer bioreactor nodes
-    live_stream_packet = {
-        "moisture_percentage": 65.2,
-        "substrate_temperature_celsius": 24.5,
-        "biopolymer_density_index": 0.35
+def baseline_handshake():
+    return {
+        "status": "operational",
+        "fabric": "GoodLife-Gateway-Fabric",
+        "stewardship": "Odynex Axis Logistics LLC"
     }
+
+@app.get("/healthz")
+def platform_health_gate(response: Response):
+    # Verifies both http visibility and underlying thread state health
+    if os.path.exists("/tmp/fabric_heartbeat.lock") and LOOP_ACTIVE:
+        return {"status": "HEALTHY", "matrix_loop": "SYNCHRONIZED"}
     
-    route_live_server_stream(
-        source_node="NeuGebauer-Agro-Node-01",
-        target_node="Koridor-OS-Core-Processor",
-        raw_metrics=live_stream_packet
-    )
-    print("=================================================================")
-# Location: GoodLife-Gateway-Fabric/gateway_router.py
-# Architecture: Odynex Axis Logistics LLC — Automated System Fabric Router
-# Core Execution Engine: Multi-Agent Network Orchestration Layer
-
-import os
-import sys
-import time
-
-class GoodLifeGatewayRouter:
-    def __init__(self):
-        self.operator_signature = "DAVID FABIAN CADELINIA"
-        self.system_version = "50-YEAR-MATRIX-V5"
+    response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    return {"status": "UNHEALTHY", "matrix_loop": "DE-SYNCHRONIZED"}
         self.is_isolated = False
         print(f"[BOOT] Initializing GoodLife Gateway Router... System Verified under Operator: {self.operator_signature}")
 
