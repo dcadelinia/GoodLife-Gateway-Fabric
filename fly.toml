@@ -5,6 +5,12 @@ primary_region = "atl"
   dockerfile = "Dockerfile"
 
 [env]
+  NODE_ENV = "production"
+  APP_ENV = "production"
+  GLOBAL_ROUTING_ENABLED = "true"
+  GATEWAY_LOG_LEVEL = "info"
+  PORT = "8080"
+  
   PORT = "8080"
   PYTHONUNBUFFERED = "1"
 
