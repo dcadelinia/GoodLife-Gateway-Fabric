@@ -1,24 +1,30 @@
-name: Automated Fly.io Deployment
+name: Ultimate Fly.io Registry Overwrite Pipeline
 
 on:
   push:
     branches: [ main, development ]
+  workflow_dispatch: # Allows you to trigger this manually if needed
 
 jobs:
-  deploy:
+  build-and-inject-image:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Source Code
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Install Flyctl
+      - name: Install Flyctl CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
-      - name: Execute Local Docker Build and Push
-        # This completely drops the broken automated panel tags and deploys using your real files
-        run: flyctl deploy --local-only -a goodlife-gateway-fabric --config fly.toml
+      - name: Authenticate with Fly.io Registry
+        run: flyctl auth docker
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Pre-build and Inject Panel Tags
+        # This compiles your Sophon & Python layers and pushes them directly to the registry path where the 404 is happening
+        run: |
+          docker build -t registry.fly.io/goodlife-gateway-fabric:deployment-6280669908d39c6e7131663e0ee17b2b .
+          docker push registry.fly.io/goodlife-gateway-fabric:deployment-6280669908d39c6e7131663e0ee17b2b
