@@ -3,7 +3,7 @@ app = 'goodlife-gateway-fabric'
 primary_region = 'syd'
 
 [build]
-  # Bypasses the missing registry image by downloading a clean python environment
+  # OVERRIDE: Tells Fly.io to ignore the panel's bad image tags and pull a clean system layer
   image = "python:3.11-slim"
 
 [env]
@@ -12,7 +12,7 @@ primary_region = 'syd'
   PYTHONUNBUFFERED = "1"
 
 [experimental]
-  # Bootstraps your system matrix baseline module upon machine launch
+  # Automatically triggers your central system core matrix on startup
   entrypoint = ["python3", "core-kernel/deterministic_engine.py"]
 
 [http_service]
