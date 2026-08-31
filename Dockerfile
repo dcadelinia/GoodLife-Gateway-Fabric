@@ -25,7 +25,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["uvicorn", "omni_service:app", "--host", "0.0.0.0", "--port", "8080"]RUN python3 asset-defense/morpheus_security.py
-
-# Default entry execution path targets your central system matrix baseline module
-ENTRYPOINT ["python3", "core-kernel/deterministic_engine.py"]
+CMD ["uvicorn", "omni_service:app", "--host", "0.0.0.0", "--port", "8080"]
