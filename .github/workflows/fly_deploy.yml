@@ -1,0 +1,31 @@
+name: Fly.io Registry Synchronization Pipeline
+
+on:
+  push:
+    branches: [ main, development ]
+  workflow_dispatch:
+
+jobs:
+  inject-registry-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository Source
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx Runner
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install Flyctl Engine CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Authenticate with Fly.io Registry
+        run: flyctl auth docker
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Compile and Force-Inject Active Panel Tag
+        # This interceptor explicitly compiles your workspace files and maps them directly to the exact string the panel is requesting
+        run: |
+          docker build -t registry.fly.io/goodlife-gateway-fabric:deployment-e2413f66ed40c69c48e37638df9f4807 .
+          docker push registry.fly.io/goodlife-gateway-fabric:deployment-e2413f66ed40c69c48e37638df9f4807
+          
