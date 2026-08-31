@@ -1,29 +1,23 @@
-# fly.toml app configuration file for goodlife-gateway-fabric
-app = 'goodlife-gateway-fabric'
-primary_region = 'syd'
+FROM python:3.11-slim
 
-[build]
-  # OVERRIDE: Tells Fly.io to ignore the panel's bad image tags and pull a clean system layer
-  image = "python:3.11-slim"
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONPATH=/opt/odynex-axis-matrix
 
-[env]
-  PYTHONPATH = "/opt/odynex-axis-matrix"
-  DEBIAN_FRONTEND = "noninteractive"
-  PYTHONUNBUFFERED = "1"
+WORKDIR /opt/odynex-axis-matrix
 
-[experimental]
-  # Automatically triggers your central system core matrix on startup
-  entrypoint = ["python3", "core-kernel/deterministic_engine.py"]
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-[http_service]
-  internal_port = 8080
-  force_https = true
-  auto_stop_machines = 'stop'
-  auto_start_machines = true
-  min_machines_running = 0
-  processes = ['app']
+COPY . .
 
-[[vm]]
-  memory = '1gb'
-  cpu_kind = 'shared'
-  cpus = 1
+# Install dependencies if requirements.txt exists
+RUN if [ -f requirements.txt ]; then \
+      pip install --no-cache-dir -r requirements.txt; \
+    fi
+
+EXPOSE 8080
+
+CMD ["python3", "core-kernel/deterministic_engine.py"]
