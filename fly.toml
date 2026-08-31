@@ -14,10 +14,11 @@ execution_loops:
     description: "Evaluates external gateway states and executes scheduled actions"
     trigger: "continuous"             
     
+    # FIXED: Re-structured into a uniform map for predictable programmatic parsing
     pre_flight_checks:
-      - check_network_connectivity: true
-      - verify_external_gateway_sync: true
-      - check_memory_threshold: "85%" 
+      check_network_connectivity: true
+      verify_external_gateway_sync: true
+      check_memory_threshold: "85%" 
 
     loop_sequence:
       - step: "fetch_latest_state"
@@ -29,11 +30,25 @@ execution_loops:
       - step: "commit_state_payload"
         timeout_seconds: 10
         on_failure: "rollback_and_alert"
-      # FIX: Injected infrastructure ping to satisfy fly.toml [[http_service.checks]]
       - step: "emit_http_heartbeat"
         timeout_seconds: 2
         on_failure: "log_warning"
 
+    platform_handlers:
+      on_sigterm: "immediate_graceful_drain_5s"    
+      on_sigkill: "force_unlock"      
+      allow_concurrent_loops: false   
+
+error_handling_policies:
+  fallback_to_safe_state:
+    action: "reset_to_last_known_good"
+    clear_local_cache: true
+    notify_admin: true
+  
+  rollback_and_alert:
+    action: "abort_transaction"
+    release_distributed_locks: true
+    severity: "CRITICAL"
     platform_handlers:
       # FIX: Fly.io gives machines exactly 5 seconds by default to shut down after SIGTERM. 
       # We explicitly map this out so the application drains state instantly.
