@@ -2,11 +2,6 @@
 app = "goodlife-gateway-fabric"
 primary_region = "iad"
 
-[build]
-  # Overrides and blocks account builders like fly-builder-tranquil-valley-1715
-  builder = "none"
-  image = ""
-
 [http_service]
   internal_port = 8080
   force_https = true
