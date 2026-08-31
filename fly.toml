@@ -1,23 +1,28 @@
-FROM python:3.11-slim
+# fly.toml app configuration file for goodlife-gateway-fabric
 
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONPATH=/opt/odynex-axis-matrix
+app = "goodlife-gateway-fabric"
+primary_region = "syd"
 
-WORKDIR /opt/odynex-axis-matrix
+[build]
+  image = "python:3.11-slim"
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-       build-essential \
-    && rm -rf /var/lib/apt/lists/*
+[env]
+  PYTHONPATH = "/opt/odynex-axis-matrix"
+  DEBIAN_FRONTEND = "noninteractive"
+  PYTHONUNBUFFERED = "1"
 
-COPY . .
+[experimental]
+  entrypoint = ["python3", "core-kernel/deterministic_engine.py"]
 
-# Install dependencies if requirements.txt exists
-RUN if [ -f requirements.txt ]; then \
-      pip install --no-cache-dir -r requirements.txt; \
-    fi
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
 
-EXPOSE 8080
-
-CMD ["python3", "core-kernel/deterministic_engine.py"]
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
