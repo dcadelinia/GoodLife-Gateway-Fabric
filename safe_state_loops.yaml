@@ -48,6 +48,20 @@ error_handling_policies:
     action: "abort_transaction"
     release_distributed_locks: true
     severity: "CRITICAL"
+      on_sigterm: "immediate_graceful_drain_5s"    
+      on_sigkill: "force_unlock"      
+      allow_concurrent_loops: false   
+
+error_handling_policies:
+  fallback_to_safe_state:
+    action: "reset_to_last_known_good"
+    clear_local_cache: true
+    notify_admin: true
+  
+  rollback_and_alert:
+    action: "abort_transaction"
+    release_distributed_locks: true
+    severity: "CRITICAL"
     # Deep integration with Fly.io Machine events
     platform_handlers:
       on_sigterm: "graceful_drain"    # Complete current cycle and save state before Fly stops the machine
