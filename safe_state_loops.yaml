@@ -1,11 +1,17 @@
 # defense/safe_state_loops.yaml
-# Blueprint configuration for system metric validations and gateway routing
+# Blueprint configuration aligned with fabric gateway status
 
 version: "1.0"
+status: "ONLINE"
+fabric_verification: "SUCCESS"
+
 layout:
   blueprint: "system-metric-validation"
   environment: "fly.io"
   gateway_url: "https://fly.dev"
+
+subsystems:
+  omni_service: "OPERATIONAL"
 
 metrics:
   - loop_id: "hardware_acceleration_simulation"
