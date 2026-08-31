@@ -20,5 +20,5 @@ COPY . .
 # EXPOSE port 8080 to match your fly.toml configuration
 EXPOSE 8080
 
-# Spin up the gateway router module securely 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+# TARGETS YOUR TRUE APPLICATION MODULE
+CMD ["uvicorn", "omni_service:app", "--host", "0.0.0.0", "--port", "8080"]
