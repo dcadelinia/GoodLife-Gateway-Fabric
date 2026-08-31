@@ -1,0 +1,27 @@
+# Location: .github/workflows/fly_deploy.yml
+name: Fly.io Local Build and Deploy Pipeline
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy-gateway-fabric:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install Flyway CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Build and Deploy to Fly.io
+        run: |
+          flyctl deploy --build-only --push --local-only -a goodlife-gateway-fabric --image-label deployment-${{ github.sha }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
