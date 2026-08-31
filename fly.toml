@@ -1,7 +1,9 @@
-app = "goodlife-gateway-fabric"
-primary_region = "syd"
+# fly.toml app configuration file for goodlife-gateway-fabric
+app = 'goodlife-gateway-fabric'
+primary_region = 'syd'
 
 [build]
+  # TRICK: Pulls a certified python platform directly to skip the panel's bad remote registry tags
   image = "python:3.11-slim"
 
 [env]
@@ -10,17 +12,18 @@ primary_region = "syd"
   PYTHONUNBUFFERED = "1"
 
 [experimental]
+  # Automatically fires your central matrix baseline engine script as soon as the machine boots
   entrypoint = ["python3", "core-kernel/deterministic_engine.py"]
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
-  processes = ["app"]
+  processes = ['app']
 
 [[vm]]
-  memory = "1gb"
-  cpu_kind = "shared"
+  memory = '1gb'
+  cpu_kind = 'shared'
   cpus = 1
