@@ -1,7 +1,4 @@
 app = "goodlife-gateway-fabric-vmbi4w"
-# fly.toml app configuration file for GoodLife-Gateway-Fabric
-
-app = "goodlife-gateway-fabric"
 primary_region = "iad"
 
 [http_service]
