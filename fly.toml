@@ -3,7 +3,7 @@ app = 'goodlife-gateway-fabric'
 primary_region = 'syd'
 
 [build]
-  # Explicitly forces Fly.io to compile using your local Dockerfile blueprint
+  # Configures a standard local context fallback target
   dockerfile = "Dockerfile"
 
 [http_service]
