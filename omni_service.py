@@ -112,4 +112,42 @@ async def handle_framer_submission(form_data: FramerContactForm):
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+        def send_email_notification(client_name: str, client_email: str, client_message: str):
+    # ZenBusiness Specific Outbound SMTP Core Server Settings
+    SMTP_SERVER = "mail.b.hostedemail.com"  
+    SMTP_PORT = 465
+    SENDER_EMAIL = "david@odynexaxis.biz" 
+    
+    # Enter your dedicated mailbox login password here
+    SENDER_PASSWORD = "Galaways8896"  
+    RECEIVER_EMAIL = "david@odynexaxis.biz"
+
+    # Set up email headers and metadata
+    msg = MIMEMultipart()
+    msg['From'] = SENDER_EMAIL
+    msg['To'] = RECEIVER_EMAIL
+    msg['Subject'] = f"New Inquiry: {client_name} via Odynex Axis Gateway"
+
+    body = f"""
+    You have received a new contact submission from your website form:
+    
+    Name: {client_name}
+    Email: {client_email}
+    
+    Message:
+    ---------------------------------------------
+    {client_message}
+    ---------------------------------------------
+    """
+    msg.attach(MIMEText(body, 'plain'))
+
+    try:
+        # Connect using secure SMTP_SSL directly for ZenBusiness Port 465
+        server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT)
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, msg.as_string())
+        server.quit()
+        print("Notification email successfully dispatched.")
+    except Exception as e:
+        print(f"Failed to dispatch email alert: {str(e)}")
         
