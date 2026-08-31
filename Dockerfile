@@ -1,40 +1,31 @@
-# Optimized for Fly.io CPU deployment compatibility with Sophon network integration
 FROM python:3.11-slim
 
-# Prevent interactive prompts during software package provisioning
-ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONPATH=/opt/odynex-axis-matrix
+ENV PORT=8080
 
-# Install basic environment dependencies, core runtime tools, and network certificates
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    git \
-    bash \
-    ca-certificates \
-    jq \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# --- SOPHON PROTOCOL LAYER INTEGRATION ---
-# Downloads and configures the fundamental Sophon node runtime architecture 
-RUN curl -L https://githubusercontent.com | bash || true
-ENV PATH="/root/.sophon/bin:${PATH}"
-# ------------------------------------------
-
-# Set up the internal application directory within the container
 WORKDIR /opt/odynex-axis-matrix
 
-# Copy all validated repository framework modules and data configurations
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        curl \
+        git \
+        bash \
+        ca-certificates \
+        jq \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+
+RUN python -m pip install --upgrade pip setuptools wheel \
+    && python -m pip install --no-cache-dir -r requirements.txt
+
 COPY . .
 
-# Update pip setup inside the runtime layer
-RUN pip3 install --no-cache-dir --upgrade pip setuptools
+EXPOSE 8080
 
-# Set runtime workspace environments to look for core execution kernels
-ENV PYTHONPATH=/opt/odynex-axis-matrix
-
-# Run your mandatory framework validation check during compilation
-RUN python3 asset-defense/morpheus_security.py
+CMD ["uvicorn", "omni_service:app", "--host", "0.0.0.0", "--port", "8080"]RUN python3 asset-defense/morpheus_security.py
 
 # Default entry execution path targets your central system matrix baseline module
 ENTRYPOINT ["python3", "core-kernel/deterministic_engine.py"]
