@@ -1,39 +1,27 @@
-import json
-import os
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+# Use a slim, stable base Python image
+FROM python:3.11-slim
 
-# Initialize system
-app = FastAPI(
-    title="GoodLife Gateway Fabric",
-    description="Unified API Layer for Odynex Axis Logistics LLC Frameworks",
-    version="1.0.0"
-)
+# Force root directory bounds inside the container
+WORKDIR /app
 
-# Standardized CORS Configuration (No longer using the root dot-notation directory)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Ensure Python looks inside /app so your custom modules import flawlessly
+ENV PYTHONPATH=/app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
 
-# Core paths mapped directly to your new consolidated directories
-COGNITIVE_LAYER_DIR = os.path.join(os.path.dirname(__file__), "cognitive_layer", "models")
-QUANT_SPEC_PATH = os.path.join(COGNITIVE_LAYER_DIR, "quantization_spec.json")
-GR00T_CONFIG_PATH = os.path.join(COGNITIVE_LAYER_DIR, "isaac_gr00t_config.json")
+# Install dependencies cleanly
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-class TelemetryPayload(BaseModel):
-    route_uuid: str
-    accumulated_context_tokens: int
-    freight_density_index: float
-    hardware_fault_condition: bool
+# Copy all core files, YAML blueprints, and project directories into the image
+COPY . .
 
-@app.get("/health")
-def health_check():
-    """Verifies service readiness and file system path integrity."""
+# EXPOSE port 8080 to match your fly.toml configuration
+EXPOSE 8080
+
+# CRITICAL FIX: Run directly through omni_service.py where your app context is defined
+CMD ["uvicorn", "omni_service:app", "--host", "0.0.0.0", "--port", "8080"]
     quant_exists = os.path.exists(QUANT_SPEC_PATH)
     gr00t_exists = os.path.exists(GR00T_CONFIG_PATH)
     
