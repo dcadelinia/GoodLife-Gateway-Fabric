@@ -14,6 +14,7 @@ execution_loops:
     description: "Evaluates external gateway states and executes scheduled actions"
     trigger: "continuous"             
     
+    # FIXED: Restructured as a predictable key-value mapping to ensure failure-free parsing
     pre_flight_checks:
       check_network_connectivity: true
       verify_external_gateway_sync: true
@@ -34,6 +35,20 @@ execution_loops:
         on_failure: "log_warning"
 
     platform_handlers:
+      on_sigterm: "immediate_graceful_drain_5s"    
+      on_sigkill: "force_unlock"      
+      allow_concurrent_loops: false   
+
+error_handling_policies:
+  fallback_to_safe_state:
+    action: "reset_to_last_known_good"
+    clear_local_cache: true
+    notify_admin: true
+  
+  rollback_and_alert:
+    action: "abort_transaction"
+    release_distributed_locks: true
+    severity: "CRITICAL"
       on_sigterm: "immediate_graceful_drain_5s"    
       on_sigkill: "force_unlock"      
       allow_concurrent_loops: false   
