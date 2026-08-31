@@ -3,8 +3,18 @@ app = 'goodlife-gateway-fabric'
 primary_region = 'syd'
 
 [build]
-  # Configures a standard local context fallback target
-  dockerfile = "Dockerfile"
+  # TRICK: Points to a clean, pre-built public python image to completely skip compilation queues
+  image = "python:3.11-slim"
+
+[env]
+  # Injects your runtime paths into the pre-made container layer smoothly
+  PYTHONPATH = "/opt/odynex-axis-matrix"
+  DEBIAN_FRONTEND = "noninteractive"
+  PYTHONUNBUFFERED = "1"
+
+[experimental]
+  # Tells the platform to launch your exact script as soon as the node boots up
+  entrypoint = ["python3", "core-kernel/deterministic_engine.py"]
 
 [http_service]
   internal_port = 8080
