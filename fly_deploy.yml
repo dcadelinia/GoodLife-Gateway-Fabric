@@ -1,27 +1,24 @@
-name: Fly.io Local Build and Deploy Pipeline
+name: Deploy GoodLife Gateway Fabric
 
 on:
   push:
-    branches: [ main, development ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  deploy-gateway-fabric:
+  deploy:
+    name: Deploy to Fly.io
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Source Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Install Flyctl CLI
+      - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
 
-      - name: Build and Deploy to Fly.io
-        # FIXED: Removed the broken --image tag so Fly.io compiles your real files cleanly
-        run: |
-          flyctl deploy --local-only -a goodlife-gateway-fabric --config fly.toml
+      - name: Deploy application
+        run: flyctl deploy --remote-only --app goodlife-gateway-fabric --config fly.toml
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
