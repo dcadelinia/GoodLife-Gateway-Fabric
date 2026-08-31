@@ -104,4 +104,10 @@ if __name__ == "__main__":
     # Scenario: External systemic crisis triggering immediate autonomous asset defense
     router.audit_system_telemetry(current_latency=0.002540, aquifer_purity=99.14, competitor_theft_detected=True)
     print(f"\n[STATUS] Final System Lockout State: {router.is_isolated}")
-    
+    from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+@app.get("/")
+def health():
+    return jsonify(status="ok", service="goodlife-gateway-fabric"), 200
