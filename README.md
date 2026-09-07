@@ -1,57 +1,73 @@
 <!-- ======================================================================= -->
 <!--                   PROPRIETARY & CONFIDENTIALITY NOTICE                  -->
 <!-- ======================================================================= -->
-⚠️ PROPRIETARY & CONFIDENTIAL INFORMATION
+⚠️ PROPRIETARY & CONFIDENTIAL INFORMATION  
 THIS REPOSITORY AND ALL ASSOCIATED SOURCE CODE, DATA MATRICES, OPENUSD BLUEPRINTS, 
 AND LOGICAL CONFIGURATIONS ARE THE EXCLUSIVE INTELLECTUAL PROPERTY OF ODYNEX AXIS 
 LOGISTICS LLC, MANAGED UNDER THE DIRECT STEWARDSHIP OF OPERATOR DAVID FABIAN CADELINIA.
 
-ACCESS TO THIS PRIVATE REPOSITORY IS STRUCTURELY RESTRICTED TO AUTHORIZED ENTERPRISE 
-EVALUATORS (NVIDIA INCEPTION CAPITAL CONNECT / OPENAI STARTUP FUND AUDITORS). 
+ACCESS IS RESTRICTED TO AUTHORIZED ENTERPRISE EVALUATORS (INCLUDING NVIDIA INCEPTION 
+CAPITAL CONNECT AND QUALIFIED STRATEGIC PARTNERS) UNDER MUTUAL NDA.
 
-BY ACCESSING, VIEWING, OR COMPILING ANY ASSETS WITHIN THIS ARCHITECTURE, YOU AGREE 
-TO MAINTAIN ABSOLUTE MUTUAL NON-DISCLOSURE PARADIGMS. COPYING, DUPLICATING, SCRAPING, 
-OR DECOUPLING ANY LOGICAL FRAMEWORKS HOUSED HEREIN IS STRICTLY PROHIBITED AND WILL 
-BE DEFENDED VIA OUR PUBLICLY DEPLOYED DEFENSIIVE PRIOR ART TIMESTAMPS RECORDED ON THE 
-PERMANENT, HARDBOUND REGINSTRY PUBLIC RECORD (LULU MARKETPLACE ID: M2EPZ6R).
+UNAUTHORIZED COPYING, DISTRIBUTION, OR DERIVATIVE USE IS STRICTLY PROHIBITED.  
+Core logical configurations and spatial algorithms are protected by publicly recorded 
+prior-art timestamps (Lulu Marketplace ID: M2EPZ6R and related Amazon KDP filings).
 <!-- ======================================================================= -->
 
-# 🗺 Project Koridor & 🍄 Mycelium Edge Intelligence Stack
-
-[![Core Infrastructure CI/CD Pipeline](https://github.com)](https://github.com)
-
-Unified 50-year multi-agent architecture matrix, hardware-accelerated project frameworks, and JetWay simulation workflows for Odynex Axis Logistics LLC.
-
----
-
-## 🏗 Full-Stack Hardware & Orchestration Topography
-
-The system utilizes an extreme co-design topology to manage regional data streams, isolate physical transit assets, and run multi-turn agentic inference with zero-latency overhead.
-# Koridor OS: Sovereign Spatial Intelligence Fabric 🌐
-
-Developed by **Odynex Axis Logistics LLC**, Koridor OS is an integrated, hardware-accelerated spatial intelligence platform designed to insulate, optimize, and future-proof mid-market and rural economies. 
-
-By leveraging the **NVIDIA Inception hardware ecosystem**, Koridor OS upgrades traditional, reactive regional digital twins into an omniscient, deterministic infrastructure fabric.
-
-## 🏗️ Architectural Core Pillars
-
-### 1. Deterministic Reality Engine (`/core-kernel`)
-Bypasses traditional stochastic modeling by leveraging **NVIDIA cuQuantum** simulation libraries. The kernel maps regional IoT infrastructure nodes with zero latency, shifting the system from probabilistic forecasting to absolute physical determinism.
-
-### 2. Multi-Layered Spatial Multiplexing (`/spatial-multiplex`)
-Engineers high-utility, multi-use transit corridors inside existing underutilized city rights-of-way (e.g., the **US-19 / North Slappey Blvd corridor** in Albany, Georgia). Using **NVIDIA Omniverse (USD)**, the system stacks 10 distinct operational layers—including commercial logistics, civic micro-transit, and regional digital networks—into the exact same physical coordinates with mathematical zero-collision safety.
-
-### 3. Accelerated Molecular Bio-Circularity (`/bio-circularity`)
-Deploys localized **NVIDIA Jetson Orin** pipelines running **NVIDIA BioNeMo** generative chemistry metrics. The framework monitors and accelerates organic decomposition within localized mycelium bio-reactors, instantly re-allocating agricultural waste (peanut, cotton byproducts) into high-utility structural bio-assets.
-
-### 4. Autonomous Cyber-Physical Shielding (`/asset-defense`)
-Utilizes **NVIDIA Morpheus** AI-driven cybersecurity. In the event of a global market crash, infrastructure collapse, or hostile network intrusion, the fabric automatically decouples the regional economy, isolating SOWEGA’s critical data configurations and resource metrics into independent, safe-state master loops.
+# GoodLife Gateway Fabric  
+### Continuous Möbius Loop Architecture for Living Systems & Regional Infrastructure  
+**Odynex Axis Logistics LLC** · NVIDIA Inception Member · Albany, Georgia · SOWEGA  
+Compliance-Ready Architecture | Version 1.1
 
 ---
 
-## 🛡️ Intellectual Property & Prior Art Sentry
-To prevent market dilution and protect against unauthorized corporate cloning, the core logical configurations, structured data contracts, and spatial algorithms housed in this repository are permanently tethered to an unassailable **Prior Art Baseline** published live on **Lulu Marketplace** (Hardcover Blueprint Vault) and **Amazon KDP** (Global Distribution Footprint).
+## Overview
 
-*   **Immutable Timestamp Reference:** [Lulu Global Distribution ID: M2EPZ6R]
-*   **Licensing:** Proprietary Framework Systems – Managed under the absolute stewardship of Odynex Axis Logistics LLC.
-*   
+The GoodLife Gateway Fabric (also referred to as Project Koridor / Mycelium Edge Intelligence Stack) is the cloud control plane and coordination layer for Odynex’s Living Matrix platform.
+
+It turns fragmented monitoring of flora, soil, water, and wildlife into a continuous, human-supervised, auditable system that keeps value inside the originating region.
+
+**Core differentiators (aligned with the Investor & Strategic Partner Proposal):**
+- Continuity over extraction
+- Full living-cycle coupling (Botanical + Soil/Hydrological + Wildlife)
+- Zero-disturbance modular deployment on existing pads and corridors
+- Governance-native: human-supervised Validation Before Execution gates + immutable audit logs
+- Private-land focus, ratepayer-protection modeling, non-advisory posture
+
+## Hybrid Architecture
+
+| Layer | Responsibility | Runtime |
+|-------|----------------|---------|
+| Edge / Field | Jetson-based Cycle Nodes, sensors, local inference, ROS 2 | Physical Jetson / on-prem |
+| Cloud Control Plane (this repository) | Multi-tenant gateway, Sophon intelligence cycle orchestration, Validation Before Execution gate, immutable audit trail, multi-tenant dashboards, federation | Fly.io (primary), container platforms |
+| Heavy Simulation / Digital Twins | Omniverse / OpenUSD collaborative twins, advanced physics, BioNeMo-assisted modeling | NVIDIA cloud / dedicated GPU resources |
+
+This separation is required for reliable cloud deployment and matches the Starter Kit → Production → Regional path in the proposal.
+
+## Key Capabilities (Current Focus)
+
+- Continuous multi-use IP fabric with Möbius-loop routing concepts
+- Protective coordination layer for living cycles
+- Human-supervised decision gates (Validation Before Execution / JusticeTree-style)
+- Immutable audit trail of spatial, financial, and decision data
+- Multi-tenant Starter Kit support and path to regional federation
+- Compliance-oriented controls (AI governance, consent, purpose limitation, data sovereignty)
+
+## NVIDIA Inception Alignment
+
+Architecture is designed from the start for:
+- Jetson Edge AI (vision, TensorRT, ROS 2 nodes)
+- Omniverse + OpenUSD digital twins
+- CUDA / physics-informed modeling hooks
+- Human oversight, bias screening, and immutable logs consistent with responsible AI expectations
+
+## Repository Structure (Target)
+
+## Quick Start (Local Development)
+
+```bash
+# (Instructions to be completed once entrypoint is finalized)
+cp .env.example .env
+# ... install dependencies
+# ... run migrations
+# ... start the gateway
