@@ -1,24 +1,44 @@
-# Use a slim, stable base Python image
-FROM python:3.11-slim
+# ---------- Builder ----------
+FROM python:3.12-slim AS builder
 
-# Force root directory bounds inside the container
 WORKDIR /app
 
-# Ensure Python looks inside /app so your custom modules import flawlessly
-ENV PYTHONPATH=/app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# ---------- Runtime ----------
+FROM python:3.12-slim
+
+WORKDIR /app
+
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8080
 
-# Install dependencies cleanly
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --uid 1000 odynex
 
-# Copy all core files, YAML blueprints, and project directories into the image
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
 COPY . .
 
-# EXPOSE port 8080 to match your fly.toml configuration
+RUN chown -R odynex:odynex /app
+USER odynex
+
 EXPOSE 8080
 
-# TARGETS YOUR TRUE APPLICATION MODULE
-CMD ["uvicorn", "omni_service:app", "--host", "0.0.0.0", "--port", "8080"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
