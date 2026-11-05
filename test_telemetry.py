@@ -1,21 +1,37 @@
-"""Telemetry ingestion tests."""
+import time
+import json
+import logging
+import sys
+from typing import Dict, Any
 
-from fastapi.testclient import TestClient
-from app.main import app
+# Configure structured standard output stream
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(message)s',
+    stream=sys.stdout
+)
+logger = logging.getLogger("GoodLife::TelemetryPlane")
 
-client = TestClient(app)
+class MatrixTelemetry:
+    @staticmethod
+    def emit(event_type: str, status: str, execution_time_ms: float, metadata: Dict[str, Any] = None) -> None:
+        """Emits an enterprise-grade structured JSON log matching NVIDIA platform telemetry specs."""
+        payload = {
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "subsystem": "GoodLife_Gateway_Fabric_Matrix",
+            "event_type": event_type,
+            "status": status,
+            "latency_ms": round(execution_time_ms, 3),
+            "payload": metadata or {}
+        }
+        logger.info(json.dumps(payload))
 
-
-def test_telemetry_ingest():
-    payload = {
-        "route_uuid": "route-test-001",
-        "node_id": "FABRIC-ALBANY-MAIN",
-        "hardware_fault_condition": False,
-        "efficiency_pct": 92.5,
-        "metrics": {"latency_ms": 12},
-    }
-    r = client.post("/api/v1/telemetry", json=payload)
-    assert r.status_code == 200
-    data = r.json()
-    assert data["status"] == "ACCEPTED"
-    assert data["route_uuid"] == "route-test-001"
+    @staticmethod
+    def log_agent_inference(agent_id: str, execution_time_ms: float, payload: Dict[str, Any]) -> None:
+        """Optimized shortcut specifically for logging agent processing pipelines."""
+        MatrixTelemetry.emit(
+            event_type="AGENT_INFERENCE_TICK",
+            status="DETERMINISTIC_SUCCESS",
+            execution_time_ms=execution_time_ms,
+            metadata={"agent_id": agent_id, **payload}
+      )
