@@ -1,16 +1,10 @@
-"""Continuous state orchestrator – writes heartbeat for health checks."""
-
+"""Background orchestrator – keeps heartbeat file fresh for observability."""
 from __future__ import annotations
-
-import asyncio
-import logging
+import asyncio, logging
 from pathlib import Path
-
 from app.core.audit import AuditLogger
 from app.core.config import settings
-
 logger = logging.getLogger("goodlife.orchestrator")
-
 
 class StateOrchestrator:
     def __init__(self, audit: AuditLogger) -> None:
@@ -26,17 +20,16 @@ class StateOrchestrator:
         self._stop.set()
 
     async def run(self) -> None:
-        """Write heartbeat every few seconds so /health stays green."""
         path = Path(settings.HEARTBEAT_PATH)
         self._active = True
-        logger.info("StateOrchestrator started – heartbeat=%s", path)
+        logger.info("StateOrchestrator started")
         try:
             while not self._stop.is_set():
                 try:
                     path.parent.mkdir(parents=True, exist_ok=True)
                     path.write_text("ACTIVE", encoding="utf-8")
                 except Exception as exc:
-                    logger.warning("Failed to write heartbeat: %s", exc)
+                    logger.warning("heartbeat write failed: %s", exc)
                 try:
                     await asyncio.wait_for(self._stop.wait(), timeout=5.0)
                 except asyncio.TimeoutError:
