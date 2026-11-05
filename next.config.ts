@@ -27,3 +27,11 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  output: 'standalone', // Helps container bundles track internal asset trees
+  /* Remove any incorrect 'basePath' or 'assetPrefix' configs if present */
+};
+
+export default nextConfig;
