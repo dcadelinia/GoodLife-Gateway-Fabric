@@ -1,8 +1,3 @@
-"""
-GoodLife Gateway Fabric – Primary FastAPI application.
-Odynex Axis Logistics LLC · NVIDIA Inception Program Member
-Founder: David Fabian Cadelinia · david@odynexaxis.biz · 229-364-1658
-"""
 from __future__ import annotations
 import asyncio, logging
 from contextlib import asynccontextmanager
@@ -22,9 +17,8 @@ orchestrator = StateOrchestrator(audit=audit)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting %s v%s env=%s", settings.APP_NAME, settings.VERSION, settings.ENVIRONMENT)
+    logger.info("Starting %s v%s", settings.APP_NAME, settings.VERSION)
     task = asyncio.create_task(orchestrator.run())
-    audit.log(event_type="system.startup", actor="system", detail={"version": settings.VERSION})
     try:
         yield
     finally:
@@ -34,28 +28,19 @@ async def lifespan(app: FastAPI):
             await task
         except asyncio.CancelledError:
             pass
-        audit.log(event_type="system.shutdown", actor="system", detail={})
-        logger.info("Shutdown complete")
 
-app = FastAPI(
-    title="GoodLife Gateway Fabric",
-    description="Cloud control plane – Odynex Axis Logistics LLC · NVIDIA Inception",
-    version=settings.VERSION,
-    lifespan=lifespan,
-    docs_url="/docs" if settings.ENVIRONMENT != "production" else None,
-    redoc_url=None,
-)
+app = FastAPI(title="GoodLife Gateway Fabric", version=settings.VERSION, lifespan=lifespan, docs_url=None)
 app.add_middleware(CORSMiddleware, allow_origins=settings.CORS_ORIGINS, allow_credentials=True, allow_methods=["GET", "POST", "OPTIONS"], allow_headers=["*"])
 
 @app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    logger.exception("Unhandled error on %s", request.url.path)
-    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"status": "error", "message": "Internal server error"})
+async def _err(request: Request, exc: Exception):
+    logger.exception("error on %s", request.url.path)
+    return JSONResponse(status_code=500, content={"status": "error", "message": "Internal server error"})
 
 app.include_router(health.router, tags=["Health"])
 app.include_router(telemetry.router, prefix="/api/v1", tags=["Telemetry"])
 app.include_router(contact.router, prefix="/api/v1", tags=["Contact"])
-app.include_router(vbe.router, prefix="/api/v1", tags=["Validation Before Execution"])
+app.include_router(vbe.router, prefix="/api/v1", tags=["VBE"])
 
 @app.get("/")
 async def root():
@@ -67,9 +52,5 @@ async def root():
         "founder": "David Fabian Cadelinia",
         "nvidia_inception": True,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "subsystems": {
-            "orchestrator": "OPERATIONAL" if orchestrator.is_active else "STARTING",
-            "audit": "ACTIVE",
-            "vbe_gate": "READY",
-        },
+        "subsystems": {"orchestrator": "OPERATIONAL" if orchestrator.is_active else "STARTING", "audit": "ACTIVE", "vbe_gate": "READY"},
     }

@@ -1,4 +1,3 @@
-"""Background orchestrator – keeps heartbeat file fresh for observability."""
 from __future__ import annotations
 import asyncio, logging
 from pathlib import Path
@@ -11,34 +10,23 @@ class StateOrchestrator:
         self.audit = audit
         self._active = False
         self._stop = asyncio.Event()
-
     @property
     def is_active(self) -> bool:
         return self._active
-
     def stop(self) -> None:
         self._stop.set()
-
     async def run(self) -> None:
         path = Path(settings.HEARTBEAT_PATH)
         self._active = True
-        logger.info("StateOrchestrator started")
         try:
             while not self._stop.is_set():
                 try:
-                    path.parent.mkdir(parents=True, exist_ok=True)
                     path.write_text("ACTIVE", encoding="utf-8")
-                except Exception as exc:
-                    logger.warning("heartbeat write failed: %s", exc)
+                except Exception:
+                    pass
                 try:
                     await asyncio.wait_for(self._stop.wait(), timeout=5.0)
                 except asyncio.TimeoutError:
                     pass
         finally:
             self._active = False
-            try:
-                if path.exists():
-                    path.unlink()
-            except Exception:
-                pass
-            logger.info("StateOrchestrator stopped")
