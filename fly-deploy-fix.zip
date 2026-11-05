@@ -1,0 +1,139 @@
+#!/usr/bin/env python3
+"""
+generate_fix.py
+----------------
+Generates fly-deploy-fix.zip containing:
+  1. fly.toml          – explicit internal_port 8080 + robust HTTP health check
+  2. Dockerfile        – multi-stage production image, binds 0.0.0.0:8080
+  3. README_FIX.md     – step-by-step deploy instructions
+
+Run:
+    python generate_fix.py
+"""
+
+from __future__ import annotations
+
+import zipfile
+from pathlib import Path
+
+# ---------------------------------------------------------------------------
+# File contents
+# ---------------------------------------------------------------------------
+
+FLY_TOML = r'''# fly.toml – GoodLife Gateway Fabric (dual-stack ready)
+# App name must match the one you created on Fly.io
+app = "goodlife-gateway-fabric-vmbi4w"
+primary_region = "iad"
+
+[build]
+  # Uses the Dockerfile in the same directory
+
+[env]
+  ENVIRONMENT = "production"
+  PORT = "8080"
+  PYTHONUNBUFFERED = "1"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  # Robust health check – gives the process time to bind and become ready
+  [[http_service.checks]]
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "25s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+'''
+
+DOCKERFILE = r'''# =============================================================================
+# GoodLife Gateway Fabric – Production Dockerfile
+# Multi-stage build: Python FastAPI control plane (primary process)
+# Binds explicitly to 0.0.0.0:8080 so Fly.io smoke checks succeed
+# =============================================================================
+
+# ---------- Builder ----------
+FROM python:3.12-slim AS builder
+
+WORKDIR /build
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# ---------- Runtime ----------
+FROM python:3.12-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8080 \
+    ENVIRONMENT=production \
+    # Ensure the process listens on all interfaces (required by Fly)
+    HOST=0.0.0.0
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --uid 1000 odynex
+
+# Copy installed packages from builder
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Application source (expects the app/ package layout)
+COPY . .
+
+RUN chown -R odynex:odynex /app
+USER odynex
+
+EXPOSE 8080
+
+# Docker-level healthcheck (Fly also uses the http_service.checks above)
+HEALTHCHECK --interval=15s --timeout=5s --start-period=25s --retries=3 \
+  CMD curl -f http://127.0.0.1:8080/health || exit 1
+
+# Critical: bind to 0.0.0.0 so the Fly proxy can reach the process.
+# Module path must match your package: app/main.py → app.main:app
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]
+'''
+
+README_FIX = r'''# Fly.io Deploy Fix – GoodLife Gateway Fabric
+
+## What this zip contains
+
+| File        | Purpose |
+|-------------|---------|
+| `fly.toml`  | Explicit `internal_port = 8080` + HTTP health check on `/health` with 25 s grace period |
+| `Dockerfile`| Multi-stage production image that binds to `0.0.0.0:8080` and exposes the port correctly |
+| `README_FIX.md` | These instructions |
+
+## Why the previous deploy crashed
+
+Fly smoke checks failed because the process either:
+- did not bind to `0.0.0.0` (only listened on localhost), or
+- exited before the health endpoint answered (missing `app/` package / import error), or
+- the health check path returned non-200 during the grace window.
+
+These two config files fix the binding and the health-check timing.
+
+## Prerequisites
+
+- The repository must contain a valid Python package layout that matches the Dockerfile CMD:
