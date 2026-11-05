@@ -1,53 +1,24 @@
-# GoodLife Gateway Fabric – Architecture
+# Architecture — GoodLife Gateway Fabric
 
-## Hybrid Layers
+## System Context
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Heavy Simulation / Digital Twins                           │
-│  Omniverse · OpenUSD · BioNeMo · CUDA physics               │
-│  (NVIDIA cloud / dedicated GPU)                             │
-└──────────────────────────▲──────────────────────────────────┘
-                           │ twins / policies
-┌──────────────────────────┴──────────────────────────────────┐
-│  Cloud Control Plane  ← THIS REPOSITORY                     │
-│  FastAPI gateway · VBE gate · Audit trail · Orchestrator    │
-│  Multi-tenant · Federation path · Fly.io                    │
-└──────────────────────────▲──────────────────────────────────┘
-                           │ telemetry / commands
-┌──────────────────────────┴──────────────────────────────────┐
-│  Edge / Field                                               │
-│  Jetson Cycle Nodes · ROS 2 · TensorRT · sensors            │
-│  Local inference · safe-state loops                         │
-└─────────────────────────────────────────────────────────────┘
-```
+Odynex Axis Logistics LLC provides a multi-tenant SaaS control plane that combines:
 
-## Validation Before Execution (VBE)
+1. Subscription & entitlement management (Stripe)
+2. Role-based access for learners, educators, parents, institutions, investors, sponsors
+3. Learning Lab content delivery with age-appropriate pathways
+4. CRM / lead capture for enterprise, investor, and sponsor pipelines
+5. Audit logging and consent tracking for compliance posture
 
-High-impact actions (route changes, node isolation, policy updates, firmware)  
-must be proposed, human-approved, then executed. Every step is audited.
+## Key Decisions
 
-Endpoints:
+- **Next.js App Router** chosen for server-first rendering, streaming, and unified frontend/backend.
+- **Prisma + PostgreSQL** for relational integrity across users, orgs, subscriptions, courses, and audit.
+- **NextAuth** for session security; roles stored on User and checked in server actions / middleware.
+- **Stripe** for all paid flows; entitlements derived from subscription status, never client claims.
+- **No live payment processing** until owner configures Stripe keys and products.
+- Youth / education data flows are scaffolded with consent models but require legal review before any production use involving minors.
 
-- `POST /api/v1/vbe/propose`
-- `POST /api/v1/vbe/{id}/decide`
-- `GET  /api/v1/vbe/pending`
+## Future Edge Integration
 
-## Audit Trail
-
-Append-only JSONL file in Starter Kit (`logs/audit/audit_events.jsonl`).  
-Replace with durable append-only store or ledger for production.
-
-## Health & Deployment
-
-- `GET /health` (and `/healthz`) – used by Docker HEALTHCHECK and Fly.io
-- Listens on port 8080
-- Multi-stage Dockerfile, non-root user `odynex`
-
-## Security Posture for Capital Connect
-
-- No hardcoded credentials
-- Secrets via environment / Fly secrets
-- CORS configurable
-- Human-in-the-loop for control actions
-- Immutable audit of decisions
+The original GoodLife-Gateway-Fabric Python control plane (Möbius loop, Validation-Before-Execution, Jetson edge nodes) can be attached as a separate microservice or edge gateway. This SaaS layer is the human-facing product surface and billing authority.

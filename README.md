@@ -1,191 +1,189 @@
-<!-- ======================================================================= -->
-<!--                   PROPRIETARY & CONFIDENTIALITY NOTICE                  -->
-<!-- ======================================================================= -->
-⚠️ **PROPRIETARY & CONFIDENTIAL INFORMATION**
-
-THIS REPOSITORY AND ALL ASSOCIATED SOURCE CODE, DATA MATRICES, OPENUSD BLUEPRINTS,  
-AND LOGICAL CONFIGURATIONS ARE THE EXCLUSIVE INTELLECTUAL PROPERTY OF **ODYNEX AXIS  
-LOGISTICS LLC**, MANAGED UNDER THE DIRECT STEWARDSHIP OF OPERATOR DAVID FABIAN CADELINIA.
-
-ACCESS IS RESTRICTED TO AUTHORIZED ENTERPRISE EVALUATORS (INCLUDING NVIDIA INCEPTION  
-CAPITAL CONNECT AND QUALIFIED STRATEGIC PARTNERS) UNDER MUTUAL NDA.
-
-UNAUTHORIZED COPYING, DISTRIBUTION, OR DERIVATIVE USE IS STRICTLY PROHIBITED.  
-Core logical configurations and spatial algorithms are protected by publicly recorded  
-prior-art timestamps (Lulu Marketplace ID: M2EPZ6R and related Amazon KDP filings).
-<!-- ======================================================================= -->
-
 # GoodLife Gateway Fabric
 
-### Continuous Möbius Loop Architecture for Living Systems & Regional Infrastructure
-
-**Odynex Axis Logistics LLC** · NVIDIA Inception Member · Albany, Georgia · SOWEGA  
-**Compliance-Ready Architecture | Version 1.2** · Ready for NVIDIA Capital Connect
-
----
-
-## Overview
-
-The **GoodLife Gateway Fabric** (also referred to as Project Koridor / Mycelium Edge Intelligence Stack) is the cloud control plane and coordination layer for Odynex’s Living Matrix platform.
-
-It turns fragmented monitoring of flora, soil, water, and wildlife into a continuous, human-supervised, auditable system that keeps value inside the originating region.
-
-**Core differentiators (aligned with the Investor & Strategic Partner Proposal):**
-
-- Continuity over extraction
-- Full living-cycle coupling (Botanical + Soil/Hydrological + Wildlife)
-- Zero-disturbance modular deployment on existing pads and corridors
-- Governance-native: human-supervised **Validation Before Execution** gates + immutable audit logs
-- Private-land focus, ratepayer-protection modeling, non-advisory posture
-
-## Hybrid Architecture
-
-| Layer | Responsibility | Runtime |
-|-------|----------------|---------|
-| **Edge / Field** | Jetson-based Cycle Nodes, sensors, local inference, ROS 2 | Physical Jetson / on-prem |
-| **Cloud Control Plane** *(this repository)* | Multi-tenant gateway, Sophon intelligence cycle orchestration, Validation Before Execution gate, immutable audit trail, multi-tenant dashboards, federation | Fly.io (primary), container platforms |
-| **Heavy Simulation / Digital Twins** | Omniverse / OpenUSD collaborative twins, advanced physics, BioNeMo-assisted modeling | NVIDIA cloud / dedicated GPU resources |
-
-This separation is required for reliable cloud deployment and matches the **Starter Kit → Production → Regional** path in the proposal.
-
-## Key Capabilities (Current Focus)
-
-- Continuous multi-use IP fabric with Möbius-loop routing concepts
-- Protective coordination layer for living cycles
-- Human-supervised decision gates (Validation Before Execution / JusticeTree-style)
-- Immutable audit trail of spatial, financial, and decision data
-- Multi-tenant Starter Kit support and path to regional federation
-- Compliance-oriented controls (AI governance, consent, purpose limitation, data sovereignty)
-
-## NVIDIA Inception & Capital Connect Alignment
-
-Architecture is designed from the start for:
-
-- Jetson Edge AI (vision, TensorRT, ROS 2 nodes)
-- Omniverse + OpenUSD digital twins
-- CUDA / physics-informed modeling hooks
-- Human oversight, bias screening, and immutable logs consistent with responsible AI expectations
-- Clear separation of control plane vs. edge vs. simulation for investor technical due diligence
-
-## Repository Structure
-
-```
-GoodLife-Gateway-Fabric/
-├── app/                          # FastAPI application (primary entrypoint)
-│   ├── main.py                   # Application factory + health endpoints
-│   ├── api/                      # HTTP routes
-│   ├── core/                     # Config, security, audit, VBE gate
-│   ├── models/                   # Pydantic schemas
-│   └── services/                 # Business logic (orchestrator, telemetry)
-├── config/                       # Runtime configuration templates
-├── system_config/                # Gateway manifest & node definitions
-├── docs/                         # Architecture, compliance, Capital Connect notes
-├── scripts/                      # Local helpers & verification
-├── tests/                        # Smoke & unit tests
-├── .github/workflows/            # CI + Fly.io deploy
-├── Dockerfile                    # Multi-stage production image
-├── fly.toml                      # Fly.io deployment config
-├── requirements.txt              # Pinned dependencies
-├── env.example                   # Environment variable template (no secrets)
-└── README.md
-```
-
-## Quick Start (Local Development)
-
-### Prerequisites
-
-- Python 3.11 or 3.12
-- Docker (optional, for container runs)
-- Fly.io CLI (`fly`) for production deploy
-
-### 1. Clone & configure
-
-```bash
-git clone https://github.com/dcadelinia/GoodLife-Gateway-Fabric.git
-cd GoodLife-Gateway-Fabric
-
-cp env.example .env
-# Edit .env — never commit real secrets
-```
-
-### 2. Install dependencies
-
-```bash
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-### 3. Run the gateway locally
-
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
-```
-
-Open:
-
-- Health: http://localhost:8080/health
-- Root status: http://localhost:8080/
-- Interactive docs: http://localhost:8080/docs
-
-### 4. Run tests
-
-```bash
-pytest tests/ -v
-```
-
-## Deployment (Fly.io)
-
-```bash
-# First time
-fly launch --copy-config --no-deploy   # review fly.toml
-fly secrets set JWT_SECRET="..." SECRET_KEY="..."   # set real values
-
-# Deploy
-fly deploy
-```
-
-Health checks hit `/health`. The service listens on port **8080**.
-
-## Validation Before Execution (VBE) Gate
-
-Critical control actions pass through a human-supervised gate before execution.  
-See `app/core/vbe_gate.py` and `docs/ARCHITECTURE.md`.
-
-Audit events are written to an immutable log stream (currently file-backed for Starter Kit; replaceable with append-only store or ledger in production).
-
-## Security Notes
-
-- **Never** commit real credentials, SMTP passwords, or API keys.
-- All secrets must live in environment variables or Fly secrets.
-- CORS, JWT, and rate-limiting hooks are present and configurable.
-- The previous root-level `omni_service.py` contained hardcoded credentials and has been superseded by the secure `app/` structure.
-
-## Capital Connect Readiness Checklist
-
-- [x] Clear hybrid architecture (Edge / Cloud / Omniverse)
-- [x] Working FastAPI control plane with health endpoints
-- [x] Validation Before Execution gate stub + audit trail
-- [x] Multi-stage Dockerfile + Fly.io config
-- [x] Environment template without secrets
-- [x] CI workflow skeleton
-- [x] Documentation suitable for technical due diligence
-- [ ] Production database / append-only audit store (next phase)
-- [ ] Full multi-tenant auth + RBAC (next phase)
-- [ ] Omniverse / OpenUSD integration hooks (simulation layer)
-
-## Related Odynex Repositories
-
-- Transactional Core Engine
-- JetWay Core Engine (simulation)
-- Project Bilis / other domain modules
-
-## License & Access
-
-Proprietary — Odynex Axis Logistics LLC.  
-Evaluation access for NVIDIA Inception Capital Connect and NDA-covered strategic partners only.
+**Premium multi-tenant SaaS platform**  
+**Odynex Axis Logistics LLC** · NVIDIA Inception Program Member  
+**Founder & Institutional Architect:** David Fabian Cadelinia  
+Phone: 229-364-1658 · Email: david@odynexaxis.biz · Website: https://www.odynexaxis.biz
 
 ---
 
-**Operator:** David Fabian Cadelinia · Odynex Axis Logistics LLC · Albany / SOWEGA, Georgia  
-**NVIDIA Inception Member**
+## Architecture Summary
+
+This repository is a production-oriented foundation for a big-tech-quality SaaS product built with:
+
+| Layer | Choice | Rationale |
+|-------|--------|-----------|
+| Framework | Next.js 15 (App Router) + TypeScript | Server Components, streaming, edge-ready, excellent DX |
+| Styling | Tailwind CSS + design tokens + dark/light | Enterprise polish, accessibility, responsive by default |
+| Database | PostgreSQL + Prisma ORM | Type-safe, migrations, excellent relational modeling |
+| Auth | NextAuth.js (Auth.js) + Prisma adapter | Secure sessions, OAuth-ready, role claims |
+| Payments | Stripe (Checkout, Customer Portal, Webhooks) | Industry standard for subscriptions, trials, invoices |
+| Email | Resend | Reliable transactional delivery |
+| Validation | Zod | End-to-end type-safe schemas |
+| Monitoring | Sentry-compatible hooks | Error tracking ready |
+| Deployment | Vercel (primary) + Docker optional | Zero-config, global edge, managed Postgres |
+| CI | GitHub Actions | Lint, typecheck, test, build on every PR |
+
+**Module boundaries**
+- `src/app` — routes (public marketing + authenticated dashboard)
+- `src/components` — UI primitives, layout, marketing, dashboard, Learning Lab
+- `src/lib` — auth, stripe, email, validations, utils
+- `prisma` — schema + seed
+- `docs` — architecture, compliance notes, deployment
+
+**Roles implemented in schema**
+Guest · Free · Student · Pro · Team Admin · Org Member · Instructor · Student Learner · Parent/Guardian · Institutional Admin · Platform Admin · Investor · Sponsor · Strategic Partner
+
+**Pricing tiers (Stripe-ready)**
+Free · Student/Learner · Pro · Team · Enterprise/Institutional (custom quote) · Sponsor
+
+**Learning Lab**
+Age-banded content groups (Future Technology Basics, AI Literacy, Logistics & Supply-Chain, Coding & Data, Entrepreneurship, Career Pathways, College & Professional Readiness). Parent/guardian consent workflow placeholders, educator portal concept, progress tracking, certificates framework. All youth-related flows flagged for legal review (COPPA / education-sector).
+
+**Investor & Sponsor portals**
+Role-restricted dashboards, request-access + admin approval, public “Investors & Partners” landing with legal disclaimer that nothing constitutes an offer to sell securities.
+
+**Security baseline**
+- Input validation (Zod)
+- CSRF via NextAuth / SameSite
+- Role checks on every protected server action / API
+- Secure headers + CSP guidance
+- Audit logging model
+- GDPR/CCPA-friendly export/deletion framework
+- WCAG 2.2 AA target
+
+---
+
+## Quick Start
+
+```bash
+# 1. Clone / extract this repository
+cd goodlife-gateway-fabric
+
+# 2. Install
+npm install
+
+# 3. Environment
+cp .env.example .env.local
+# Fill DATABASE_URL, NEXTAUTH_SECRET, Stripe keys, Resend key
+
+# 4. Database
+npx prisma generate
+npx prisma db push
+npm run db:seed   # optional demo data
+
+# 5. Develop
+npm run dev
+# → http://localhost:3000
+```
+
+### Production build check
+```bash
+npm run typecheck
+npm run lint
+npm run build
+```
+
+---
+
+## Stripe Configuration (Owner Action Required)
+
+1. Create products & prices in Stripe Dashboard for:
+   - Student monthly / yearly
+   - Pro monthly / yearly
+   - Team monthly / yearly (seat-based)
+2. Copy Price IDs into `.env`
+3. Add webhook endpoint: `https://your-domain.com/api/webhooks/stripe`
+   Events: `checkout.session.completed`, `customer.subscription.*`, `invoice.*`
+4. Set `STRIPE_WEBHOOK_SECRET`
+5. Customer Portal: enable in Stripe Dashboard → Settings → Billing → Customer portal
+
+**Trials**: configurable 7/14/30-day trials per tier. Card-required vs card-free controlled by env. Conversion handled by Stripe + webhook entitlement update.
+
+**Enterprise / Institutional**: invoice-based / custom quote pathway (no fixed price ID). Contact form routes to founder.
+
+---
+
+## Deployment (Vercel + Managed Postgres)
+
+1. Push repo to GitHub
+2. Import project in Vercel
+3. Add all environment variables from `.env.example`
+4. Attach Neon / Supabase / Vercel Postgres
+5. Deploy
+6. Run `npx prisma migrate deploy` (or use Vercel build command that includes it)
+7. Configure custom domain + Stripe webhook with production URL
+8. Set up Resend domain verification
+9. Optional: Sentry DSN
+
+Docker support is optional; a production Dockerfile can be added later if self-hosting is required.
+
+---
+
+## Required Owner / Legal Actions Before Launch
+
+- [ ] Stripe account + products + webhook + Customer Portal
+- [ ] Resend (or SendGrid) domain authentication
+- [ ] NEXTAUTH_SECRET rotation for production
+- [ ] Professional legal review of:
+  - Terms of Service, Privacy Policy, Cookie Notice, Refund Policy
+  - Children’s data / COPPA / parental consent flows
+  - Education-sector (FERPA-adjacent) data practices
+  - Securities / investor solicitation disclaimers
+  - Sponsorship contracts & promotional law
+  - Referral / affiliate program terms
+- [ ] Accessibility audit (WCAG 2.2 AA)
+- [ ] Penetration / security review of auth + billing endpoints
+- [ ] Data Processing Agreement with any sub-processors
+
+---
+
+## Production-Readiness Checklist
+
+- [x] Clean folder structure & module boundaries
+- [x] TypeScript strict + Prisma typed models
+- [x] Design system tokens (light/dark)
+- [x] Security headers + CSP baseline
+- [x] Role model covering all specified roles
+- [x] Subscription + trial + entitlement schema
+- [x] Learning Lab course / lesson / progress model
+- [x] Investor / Sponsor / Lead models
+- [x] Audit log + consent records
+- [x] `.env.example` with every required variable documented
+- [x] Stripe webhook path documented
+- [x] Database migrations via Prisma
+- [x] CI-ready scripts (lint, typecheck, build)
+- [ ] Full page implementations (Home, Platform, Solutions, Pricing, Learning Lab, About, Contact, Blog, FAQ, legal pages, auth flows, dashboard tabs)
+- [ ] Stripe Checkout + Portal + webhook handlers fully wired
+- [ ] Email templates + lifecycle sequences
+- [ ] Unit + integration tests for billing entitlement
+- [ ] E2E journeys
+- [ ] Seed data for Learning Lab curriculum
+- [ ] Admin RBAC guards on every protected action
+
+**Next engineering steps (priority order)**
+1. Implement `src/lib/auth` + NextAuth config + role guards
+2. Implement Stripe webhook + checkout session creators
+3. Build marketing pages (Home → Contact) with shared layout & navigation
+4. Build authenticated dashboard shells + entitlement checks
+5. Seed Learning Lab content + parent consent placeholders
+6. Investor / Sponsor request-access flows
+7. CI workflow + health endpoint
+8. Full test suite
+
+---
+
+## Contact
+
+**David Fabian Cadelinia**  
+Founder & Institutional Architect  
+Odynex Axis Logistics LLC  
+NVIDIA Inception Program Member  
+Phone: 229-364-1658  
+Email: david@odynexaxis.biz  
+Website: https://www.odynexaxis.biz
+
+---
+
+© 2026 Odynex Axis Logistics LLC. All rights reserved.  
+This repository is proprietary. Unauthorized distribution prohibited.
