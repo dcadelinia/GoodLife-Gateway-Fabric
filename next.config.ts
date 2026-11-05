@@ -1,37 +1,16 @@
 import type { NextConfig } from "next";
-
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "**.odynexaxis.biz" },
-      { protocol: "https", hostname: "avatars.githubusercontent.com" },
-    ],
-  },
-  headers: async () => [
-    {
+  images: { remotePatterns: [{ protocol: "https", hostname: "**.odynexaxis.biz" }] },
+  async headers() {
+    return [{
       source: "/(.*)",
       headers: [
         { key: "X-Frame-Options", value: "DENY" },
         { key: "X-Content-Type-Options", value: "nosniff" },
         { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-        { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-        {
-          key: "Content-Security-Policy",
-          value:
-            "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.stripe.com https://*.sentry.io; frame-src https://js.stripe.com https://hooks.stripe.com;",
-        },
       ],
-    },
-  ],
+    }];
+  },
 };
-
-export default nextConfig;
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  output: 'standalone', // Helps container bundles track internal asset trees
-  /* Remove any incorrect 'basePath' or 'assetPrefix' configs if present */
-};
-
 export default nextConfig;
