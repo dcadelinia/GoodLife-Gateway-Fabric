@@ -1,1 +1,1 @@
-"""GoodLife Gateway Fabric application package."""
+"""Background services."""

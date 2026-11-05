@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import APIRouter, Response, status
+from fastapi import APIRouter, Response
 
 from app.core.config import settings
 
