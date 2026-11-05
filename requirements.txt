@@ -1,9 +1,30 @@
-fastapi>=0.115.0,<1.0
-uvicorn[standard]>=0.32.0,<1.0
-pydantic[email]>=2.9.0,<3.0
-pydantic-settings>=2.6.0,<3.0
-email-validator>=2.2.0
-pyyaml>=6.0.2
-httpx>=0.27.0
-pytest>=8.3.0
-pytest-asyncio>=0.24.0
+
+- You are logged in: `fly auth login`
+- The app already exists: `goodlife-gateway-fabric-vmbi4w`
+
+## Step-by-step
+
+```bash
+# 1. Unzip into the root of your repository (or a clean deploy directory)
+unzip fly-deploy-fix.zip -d .
+# or extract and copy the two config files over your existing ones
+
+# 2. Confirm the files are present
+ls fly.toml Dockerfile
+
+# 3. (Recommended) set / rotate secrets
+fly secrets set \
+SECRET_KEY="$(openssl rand -hex 32)" \
+JWT_SECRET="$(openssl rand -hex 32)" \
+-a goodlife-gateway-fabric-vmbi4w
+
+# 4. Deploy (builds a new image from the Dockerfile in this directory)
+fly deploy -a goodlife-gateway-fabric-vmbi4w
+
+# 5. Watch the rolling update
+fly status -a goodlife-gateway-fabric-vmbi4w
+fly logs -a goodlife-gateway-fabric-vmbi4w
+
+# 6. Verify smoke-check endpoints
+curl -s https://goodlife-gateway-fabric-vmbi4w.fly.dev/health
+curl -s https://goodlife-gateway-fabric-vmbi4w.fly.dev/
