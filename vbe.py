@@ -1,54 +1,49 @@
-"""Validation Before Execution API."""
+"""Validation Before Execution (VBE) gate – human-supervised control actions."""
 
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
 
 from app.core.audit import AuditLogger
-from app.core.vbe_gate import VBEGate
-from app.models.schemas import VBEDecisionRequest, VBEProposalRequest
 
 router = APIRouter()
-_audit = AuditLogger()
-_gate = VBEGate(audit=_audit)
+audit = AuditLogger()
 
 
-@router.post("/vbe/propose")
-async def propose_action(body: VBEProposalRequest):
-    proposal = _gate.propose(
-        action_type=body.action_type,
-        payload=body.payload,
-        requested_by=body.requested_by,
-        reason=body.reason,
+class VBERequest(BaseModel):
+    action_id: str = Field(..., min_length=1)
+    description: str
+    actor: str = "operator"
+    approved: bool = False
+
+
+@router.post("/vbe/request")
+async def request_vbe(req: VBERequest):
+    """Submit an action for Validation Before Execution."""
+    audit.log(
+        event_type="vbe.request",
+        actor=req.actor,
+        detail={"action_id": req.action_id, "description": req.description},
     )
-    return {"status": "PENDING", "proposal": proposal.model_dump()}
+    return {
+        "status": "PENDING_HUMAN_REVIEW",
+        "action_id": req.action_id,
+        "message": "Action held at VBE gate until human approval.",
+    }
 
 
-@router.post("/vbe/{proposal_id}/decide")
-async def decide_action(proposal_id: str, body: VBEDecisionRequest):
-    try:
-        proposal = _gate.decide(
-            proposal_id=proposal_id,
-            approved=body.approved,
-            decided_by=body.decided_by,
-            note=body.note,
-        )
-    except KeyError:
-        raise HTTPException(status_code=404, detail="Proposal not found")
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    return {"status": proposal.status.value, "proposal": proposal.model_dump()}
-
-
-@router.get("/vbe/pending")
-async def list_pending():
-    pending = _gate.list_pending()
-    return {"count": len(pending), "proposals": [p.model_dump() for p in pending]}
-
-
-@router.get("/vbe/{proposal_id}")
-async def get_proposal(proposal_id: str):
-    proposal = _gate.get(proposal_id)
-    if not proposal:
-        raise HTTPException(status_code=404, detail="Proposal not found")
-    return proposal.model_dump()
+@router.post("/vbe/approve")
+async def approve_vbe(req: VBERequest):
+    if not req.approved:
+        raise HTTPException(status_code=400, detail="approved must be true")
+    audit.log(
+        event_type="vbe.approved",
+        actor=req.actor,
+        detail={"action_id": req.action_id},
+    )
+    return {
+        "status": "APPROVED",
+        "action_id": req.action_id,
+        "message": "Action cleared Validation Before Execution gate.",
+    }

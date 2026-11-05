@@ -1,15 +1,10 @@
-"""
-Continuous state orchestrator – Möbius-loop style heartbeat and node awareness.
-"""
+"""Continuous state orchestrator – writes heartbeat for health checks."""
 
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
-import os
 from pathlib import Path
-from typing import Optional
 
 from app.core.audit import AuditLogger
 from app.core.config import settings
@@ -31,48 +26,26 @@ class StateOrchestrator:
         self._stop.set()
 
     async def run(self) -> None:
+        """Write heartbeat every few seconds so /health stays green."""
+        path = Path(settings.HEARTBEAT_PATH)
         self._active = True
-        self._stop.clear()
-        logger.info("State orchestrator started (interval=%.1fs)", settings.ORCHESTRATOR_INTERVAL_SEC)
+        logger.info("StateOrchestrator started – heartbeat=%s", path)
         try:
             while not self._stop.is_set():
-                self._write_heartbeat()
-                await asyncio.sleep(settings.ORCHESTRATOR_INTERVAL_SEC)
-        except asyncio.CancelledError:
-            logger.info("Orchestrator cancelled")
+                try:
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text("ACTIVE", encoding="utf-8")
+                except Exception as exc:
+                    logger.warning("Failed to write heartbeat: %s", exc)
+                try:
+                    await asyncio.wait_for(self._stop.wait(), timeout=5.0)
+                except asyncio.TimeoutError:
+                    pass
         finally:
             self._active = False
-            self._remove_heartbeat()
-            logger.info("State orchestrator stopped")
-
-    def _write_heartbeat(self) -> None:
-        path = Path(settings.HEARTBEAT_PATH)
-        try:
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text("ACTIVE", encoding="utf-8")
-        except OSError as e:
-            logger.warning("Could not write heartbeat: %s", e)
-
-    def _remove_heartbeat(self) -> None:
-        try:
-            Path(settings.HEARTBEAT_PATH).unlink(missing_ok=True)
-        except OSError:
-            pass
-
-    def load_manifest(self) -> dict:
-        """Load gateway routing manifest if present."""
-        candidates = [
-            Path("system_config/gateway_manifest.json"),
-            Path("config/gateway_manifest.json"),
-        ]
-        for p in candidates:
-            if p.exists():
-                try:
-                    return json.loads(p.read_text(encoding="utf-8"))
-                except (json.JSONDecodeError, OSError) as e:
-                    logger.warning("Manifest read error: %s", e)
-        return {
-            "system_layer": "GoodLife-Gateway-Fabric",
-            "compute_engine": "NVIDIA-Inception-Accelerated-Mesh",
-            "routing_nodes": [],
-        }
+            try:
+                if path.exists():
+                    path.unlink()
+            except Exception:
+                pass
+            logger.info("StateOrchestrator stopped")

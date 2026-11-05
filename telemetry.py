@@ -1,32 +1,30 @@
-"""Telemetry ingestion endpoints."""
+"""Telemetry ingestion (Starter Kit)."""
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
 from app.core.audit import AuditLogger
-from app.models.schemas import TelemetryPayload
 
 router = APIRouter()
-# Will be injected via app state in production; for simplicity use module-level
-_audit = AuditLogger()
+audit = AuditLogger()
+
+
+class TelemetryPayload(BaseModel):
+    route_uuid: str = Field(..., min_length=1)
+    hardware_fault_condition: bool = False
+    metrics: dict | None = None
 
 
 @router.post("/telemetry")
-async def ingest_telemetry(payload: TelemetryPayload, request: Request):
-    """Accept edge / field telemetry from Cycle Nodes."""
-    _audit.log(
+async def ingest_telemetry(payload: TelemetryPayload):
+    audit.log(
         event_type="telemetry.ingest",
-        actor=payload.node_id,
-        resource=payload.route_uuid,
+        actor="edge",
         detail={
-            "hardware_fault": payload.hardware_fault_condition,
-            "efficiency_pct": payload.efficiency_pct,
-            "metrics_keys": list(payload.metrics.keys()),
+            "route_uuid": payload.route_uuid,
+            "fault": payload.hardware_fault_condition,
         },
     )
-    return {
-        "status": "ACCEPTED",
-        "route_uuid": payload.route_uuid,
-        "message": "Telemetry recorded into fabric audit trail",
-    }
+    return {"status": "ACCEPTED", "route_uuid": payload.route_uuid}

@@ -1,13 +1,13 @@
 """
 GoodLife Gateway Fabric – Primary FastAPI application.
 Cloud control plane for Odynex Axis Logistics LLC Living Matrix.
+NVIDIA Inception Program Member.
 """
 
 from __future__ import annotations
 
 import asyncio
 import logging
-import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
@@ -15,9 +15,9 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import health, telemetry, contact, vbe
-from app.core.config import settings
+from app.api import contact, health, telemetry, vbe
 from app.core.audit import AuditLogger
+from app.core.config import settings
 from app.services.orchestrator import StateOrchestrator
 
 logging.basicConfig(
@@ -26,7 +26,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger("goodlife.gateway")
 
-# Shared runtime objects
 audit = AuditLogger()
 orchestrator = StateOrchestrator(audit=audit)
 
@@ -34,12 +33,16 @@ orchestrator = StateOrchestrator(audit=audit)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown lifecycle."""
-    logger.info("GoodLife Gateway Fabric starting – environment=%s", settings.ENVIRONMENT)
+    logger.info(
+        "GoodLife Gateway Fabric starting – env=%s version=%s",
+        settings.ENVIRONMENT,
+        settings.VERSION,
+    )
     task = asyncio.create_task(orchestrator.run())
     audit.log(
         event_type="system.startup",
         actor="system",
-        detail={"version": "1.2.0", "env": settings.ENVIRONMENT},
+        detail={"version": settings.VERSION, "env": settings.ENVIRONMENT},
     )
     try:
         yield
@@ -56,14 +59,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="GoodLife Gateway Fabric",
-    description="Cloud control plane – Odynex Axis Logistics LLC · NVIDIA Inception",
-    version="1.2.0",
+    description=(
+        "Cloud control plane – Odynex Axis Logistics LLC · NVIDIA Inception. "
+        "Founder: David Fabian Cadelinia · david@odynexaxis.biz · 229-364-1658"
+    ),
+    version=settings.VERSION,
     lifespan=lifespan,
     docs_url="/docs" if settings.ENVIRONMENT != "production" else None,
     redoc_url=None,
 )
 
-# CORS – tighten allow_origins in production via settings
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -100,12 +105,13 @@ async def root():
     return {
         "status": "ONLINE",
         "service": "GoodLife Gateway Fabric",
-        "version": "1.2.0",
+        "version": settings.VERSION,
         "proprietor": "Odynex Axis Logistics LLC",
+        "founder": "David Fabian Cadelinia",
         "nvidia_inception": True,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "subsystems": {
-            "orchestrator": "OPERATIONAL" if orchestrator.is_active else "STOPPED",
+            "orchestrator": "OPERATIONAL" if orchestrator.is_active else "STARTING",
             "audit": "ACTIVE",
             "vbe_gate": "READY",
         },
