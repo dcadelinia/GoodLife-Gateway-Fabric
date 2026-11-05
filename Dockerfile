@@ -1,63 +1,44 @@
-# ---------- Builder ----------
-FROM python:3.12-slim AS builder
-
+# ==========================================
+# STAGE 1: Dependency Installation Plane
+# ==========================================
+FROM node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
-
-# ---------- Runtime ----------
-FROM python:3.12-slim
-
+# ==========================================
+# STAGE 2: Application Optimization Builder
+# ==========================================
+FROM node:20-alpine AS builder
 WORKDIR /app
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PORT=8080
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd --create-home --uid 1000 odynex
-
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
-
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN chown -R odynex:odynex /app
-USER odynex
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npx prisma generate
+RUN npm run build
 
-EXPOSE 8080
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
-
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
-# ... (Your previous setup/build stages) ...
-
+# ==========================================
+# STAGE 3: NVIDIA Ecosystem Production Runner
+# ==========================================
 FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=8080
 ENV HOSTNAME="0.0.0.0"
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# 1. Copy the standalone server bundle
-COPY --from=builder /app/.next/standalone ./
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# 2. Add these lines to fix the blank page issue!
-COPY --from=builder /app/.next/static ./.next/static
+# Copy core engine assets explicitly to resolve client white-screen failures
 COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+USER nextjs
 EXPOSE 8080
 
 CMD ["node", "server.js"]
